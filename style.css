@@ -421,3 +421,34 @@ main.map-overview aside {display:none}
 @media(max-width:700px) {
   .work-summary #job-total {font-size:1.085rem}
 }
+
+@media (prefers-reduced-motion:no-preference) {
+  #detail-body :is(.survey-gallery,.survey-location) {
+    animation:survey-enter 180ms ease-out both;
+  }
+  :is(header button,header select,.work-summary button,#photo-navigation button,.edit-photo,.editor-actions button,.survey-location a) {
+    transition:transform 120ms ease-out,background-color 120ms ease-out;
+  }
+  :is(header button,header select,.work-summary button,#photo-navigation button,.edit-photo,.editor-actions button,.survey-location a):active:not(:disabled) {
+    transform:scale(.97);
+  }
+  #photo-editor {
+    opacity:0;
+    transform:translateY(4px);
+    transition:opacity 160ms ease-out,transform 160ms ease-out,display 160ms allow-discrete,overlay 160ms allow-discrete;
+  }
+  #photo-editor[open] {opacity:1;transform:translateY(0)}
+  #photo-editor::backdrop {
+    opacity:0;
+    transition:opacity 160ms ease-out,display 160ms allow-discrete,overlay 160ms allow-discrete;
+  }
+  #photo-editor[open]::backdrop {opacity:1}
+  @starting-style {
+    #photo-editor[open] {opacity:0;transform:translateY(4px)}
+    #photo-editor[open]::backdrop {opacity:0}
+  }
+}
+@keyframes survey-enter {
+  from {opacity:.72;transform:translateY(3px)}
+  to {opacity:1;transform:translateY(0)}
+}

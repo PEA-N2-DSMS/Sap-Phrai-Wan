@@ -5,13 +5,23 @@ const isSurveyCircuit = circuitUrl.searchParams.get('circuit') === surveyCircuit
 const circuit = byId('circuit');
 circuit.value = isSurveyCircuit ? surveyCircuit : 'WGT03VR-105';
 document.title = 'PEA ' + circuit.value;
+let circuitTransition;
 window.addEventListener('pageshow', () => {
+  circuitTransition?.cancel();
   circuit.value = isSurveyCircuit ? surveyCircuit : 'WGT03VR-105';
 });
 circuit.addEventListener('change', () => {
+  circuitTransition?.cancel();
   if (circuit.value === surveyCircuit) circuitUrl.searchParams.set('circuit', surveyCircuit);
   else circuitUrl.searchParams.delete('circuit');
-  window.location.assign(circuitUrl);
+  if (reducedMotion.matches) {
+    window.location.assign(circuitUrl);
+    return;
+  }
+  circuitTransition = dashboard.animate([{opacity: 1}, {opacity: .7}], {
+    duration: 140, easing: 'ease-in', fill: 'forwards'
+  });
+  circuitTransition.onfinish = () => window.location.assign(circuitUrl);
 });
 const photos = isSurveyCircuit ? wgt03vr04 : patrolData.photos;
 const rows = isSurveyCircuit ? photos.map(photo => [photo.id]) : patrolData.rows.map(row => [...row]);
@@ -75,6 +85,7 @@ const workDetailZoom = 16;
 let map;
 let markers;
 let activePhoto = null;
+let overviewAnimation;
 const node = (tag, value) => {
   const element = document.createElement(tag);
   if (value != null) element.textContent = value;
@@ -136,6 +147,13 @@ function setWorkFilter(onlyManual) {
   map?.invalidateSize({pan:false, animate:false});
   renderPins();
   fit(onlyManual);
+  overviewAnimation?.cancel();
+  if (!reducedMotion.matches) {
+    overviewAnimation = byId('map').animate(
+      [{opacity: .84}, {opacity: 1}],
+      {duration: 180, easing: 'ease-out'}
+    );
+  }
 }
 
 function stepPhoto(offset) {
@@ -255,6 +273,7 @@ function createPhotoCard(photo) {
 }
 
 function photoDetail(photo) {
+  overviewAnimation?.cancel();
   activePhoto = photo;
   if (dashboard.classList.contains('map-overview')) {
     dashboard.classList.remove('map-overview');
@@ -275,8 +294,8 @@ function photoDetail(photo) {
     map.stop();
     const targetZoom = workDetailZoom;
     if (reducedMotion.matches) map.setView(position, targetZoom, {animate:false});
-    else if (map.getZoom() === targetZoom) map.panTo(position, {animate:true,duration:.45});
-    else map.flyTo(position, targetZoom, {duration:.65});
+    else if (map.getZoom() === targetZoom) map.panTo(position, {animate:true,duration:.28});
+    else map.flyTo(position, targetZoom, {duration:.42});
   }
   const gallery = node('div');
   gallery.className = group.length > 1 ? 'survey-gallery multiple' : 'survey-gallery';
