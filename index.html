@@ -8,7 +8,15 @@
 <link rel="stylesheet" href="style.css">
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script defer src="data.js?v=03f1c92"></script>
-<script defer src="app.js"></script>
+<script defer src="app.js?v=photo-navigation"></script>
+<style>
+#photo-navigation:not([hidden]){display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 14px}
+#photo-navigation button:disabled{opacity:.45;cursor:default}
+#photo-position{white-space:nowrap;font-variant-numeric:tabular-nums}
+#detail>button#close{float:none;display:block;margin:0 0 8px auto}
+#detail-body h3{font-size:1rem;margin:12px 0 0}
+#detail-body small{display:block;margin-bottom:8px;color:#526570}
+</style>
 </head>
 <body>
 <header><div class="symbol" aria-hidden="true">⌖</div><div><h1>แผนที่ลาดตระเวนทรัพย์ไพรวัลย์</h1><p>WGT03VR-105 · ฟีดเดอร์ 3</p></div><button id="fit">ดูทุกหมุด</button></header>
@@ -20,6 +28,10 @@
  </aside>
  <section id="map" aria-label="แผนที่ภาพดาวเทียม"><p id="map-status" role="status">กำลังโหลดแผนที่ภาพดาวเทียม</p></section>
 </main>
-<dialog id="detail"><button id="close" aria-label="ปิดรายละเอียด">×</button><div id="detail-body"></div></dialog>
+<dialog id="detail"><button id="close" aria-label="ปิดรายละเอียด">×</button><nav id="photo-navigation" aria-label="เปลี่ยนรูปสำรวจ" hidden>
+<button id="previous-photo" type="button">← ก่อนหน้า</button>
+<span id="photo-position" aria-live="polite"></span>
+<button id="next-photo" type="button">ถัดไป →</button>
+</nav><div id="detail-body"></div></dialog>
 </body>
 </html>
