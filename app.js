@@ -122,6 +122,7 @@ function setWorkFilter(onlyManual) {
       : located.filter(isManualPhoto)
     : located;
   byId('job-total').textContent = jobs.length + ' งาน';
+  byId('job-total').disabled = visibleGroups.length === 0;
   byId('time-total').textContent = jobs.some(job => job[5])
     ? Math.floor(minutes / 60) + ' ชม. ' + (minutes % 60) + ' นาที'
     : '—';
@@ -339,6 +340,7 @@ function renderPins() {
     }).on('click', () => photoDetail(photo)).addTo(markers);
   }
 }
+byId('job-total').onclick = () => photoDetail(visibleGroups[0][0]);
 byId('fit').onclick = () => setWorkFilter(false);
 byId('manual-total').onclick = () => setWorkFilter(true);
 byId('previous-photo').onclick = () => stepPhoto(-1);

@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PEA WGT03VR-105</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="style.css?v=summary-order">
+<link rel="stylesheet" href="style.css?v=start-first-job">
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script defer src="data.js?v=survey-copy"></script>
 <script defer src="wgt03vr-04.js?v=100-records"></script>
-<script defer src="app.js?v=compact-work-time"></script>
+<script defer src="app.js?v=start-first-job"></script>
 </head>
 <body>
 <header>
@@ -17,18 +17,18 @@
   <h1 class="site-title">
    <img class="pea-wordmark" src="pea-logo.png" width="856" height="309" alt="PEA การไฟฟ้าส่วนภูมิภาค">
   </h1>
- </div>
- <div class="circuit-picker">
-  <select id="circuit" aria-label="วงจร">
-   <option value="WGT03VR-105">WGT03VR-105</option>
-   <option value="WGT03VR-04">WGT03VR-04</option>
-  </select>
+  <div class="circuit-picker">
+   <select id="circuit" aria-label="วงจร">
+    <option value="WGT03VR-105">WGT03VR-105</option>
+    <option value="WGT03VR-04">WGT03VR-04</option>
+   </select>
+  </div>
  </div>
  <button id="fit">หน้าแรก</button>
 </header>
 <dl class="work-summary" aria-label="สรุปงานจากแบบฟอร์มสำรวจ">
  <div><dt id="time-label">ประมาณเวลาในการทำงานรวม</dt><dd id="time-total"></dd></div>
- <div><dt id="job-label">จำนวนงาน</dt><dd id="job-total"></dd></div>
+ <div><dt id="job-label">จำนวนงาน</dt><dd><button id="job-total" type="button"></button></dd></div>
  <div class="manual-jobs"><dt id="manual-label">จุดที่รถเข้าไม่ถึง</dt><dd><button id="manual-total" type="button" aria-pressed="false"></button></dd></div>
 </dl>
 <main id="dashboard" class="map-overview">

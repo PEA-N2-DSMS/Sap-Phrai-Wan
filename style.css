@@ -244,7 +244,7 @@ header h1 {font-weight:750}
 body,aside {background:var(--gmd-gradient)}
 header {
   display:grid;
-  grid-template-columns:auto auto minmax(0,1fr);
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
   background:linear-gradient(105deg,#461446 0%,#8b287f 53%,#9c3490 65%,#d8a344 91%,#f9ce8a 100%);
   color:#30234c;
   border-left:0;
@@ -256,7 +256,7 @@ header {
   gap:inherit;
   min-width:0;
 }
-header #fit {justify-self:end}
+header #fit {grid-column:2;grid-row:1}
 header .site-title {
   background:#fffffff0;
   border-radius:5px;
@@ -404,7 +404,22 @@ main.map-overview aside {display:none}
 .editor-actions {display:flex;justify-content:flex-end;gap:.5rem}
 .editor-actions button[type=submit] {background:#581858;color:#fff}
 
-.work-summary #job-total {font-size:1.3rem}
+.work-summary #job-total {
+  padding:.12em .5em;
+  border-color:#c4a2c4;
+  color:var(--purple-dark);
+  font-size:1.3rem;
+  font-weight:750;
+  text-decoration:underline;
+  text-underline-offset:.14em;
+}
+@media(max-width:580px) {
+  .header-brand {display:contents}
+  header .site-title {justify-self:start}
+  .circuit-picker {grid-column:3;grid-row:1;justify-self:end;max-width:100%}
+  #circuit {padding-inline:.35rem 1.2rem}
+  .circuit-picker::after {inset-inline-end:.5rem}
+}
 @media(max-width:700px) {
   .work-summary #job-total {font-size:1.085rem}
 }
