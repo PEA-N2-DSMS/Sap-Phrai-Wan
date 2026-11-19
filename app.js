@@ -2,18 +2,15 @@ const {photos, rows} = patrolData;
 const byId = id => document.getElementById(id);
 const detailBody = byId('detail-body');
 const located = photos.filter(photo => photo.position.length);
-const workMinutes = rows.reduce((total, row) => {
+const totalMinutes = jobs => jobs.reduce((total, row) => {
   const estimate = String(row[5] ?? '');
   const hours = Number(estimate.match(/(\d+)\s*ชั่[วง]โมง/)?.[1] ?? 0);
   const minutes = Number(estimate.match(/(\d+)\s*นาที/)?.[1] ?? 0);
   return total + hours * 60 + minutes;
 }, 0);
 const manualJobs = rows.filter(row => row[3] === 'เข้าไม่ถึง');
-byId('job-total').textContent = rows.length + ' งาน';
-byId('time-total').textContent = Math.floor(workMinutes / 60) + ' ชม. ' + (workMinutes % 60) + ' นาที';
-byId('manual-total').textContent = manualJobs.length + ' งาน';
-const manualDialog = byId('manual-jobs-dialog');
-byId('manual-total').onclick = () => manualDialog.showModal();
+const manualPhotoByJob = new Map([[11,10],[22,22],[28,28],[37,37],[39,39]]);
+const manualJobsByPhoto = new Map(manualJobs.map(row => [manualPhotoByJob.get(row[0]), row]));
 const bambooSurvey = rows.find(row => row[0] === 1);
 const insulatorSurvey = rows.find(row => row[0] === 2);
 const estimatedTime = row => row?.[5]?.replace('ชั่งโมง', 'ชั่วโมง');
@@ -21,16 +18,6 @@ const vehicleAccess = row => ({
   'เข้าถึง': 'รถเข้าถึงได้',
   'เข้าไม่ถึง': 'รถเข้าถึงไม่ได้ ต้องใช้กำลังคนเข้าปฏิบัติงาน'
 })[row?.[3]];
-const manualList = byId('manual-jobs-list');
-for (const row of manualJobs) {
-  const item = document.createElement('li');
-  const heading = document.createElement('strong');
-  heading.textContent = 'งานที่ ' + row[0] + ' · ' + row[2];
-  const details = document.createElement('span');
-  details.textContent = [row[1], row[6], estimatedTime(row)].filter(Boolean).join(' · ');
-  item.append(heading, details);
-  manualList.append(item);
-}
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let map;
 let markers;
@@ -56,9 +43,25 @@ for (const photo of photos) {
   else photoGroups.push([photo]);
 }
 
+let visibleGroups = photoGroups;
+let visiblePins = located;
+function setWorkFilter(onlyManual) {
+  const jobs = onlyManual ? manualJobs : rows;
+  const minutes = totalMinutes(jobs);
+  visibleGroups = onlyManual ? photoGroups.filter(group => group.some(photo => manualJobsByPhoto.has(photo.id))) : photoGroups;
+  visiblePins = onlyManual ? located.filter(photo => manualJobsByPhoto.has(photo.id)) : located;
+  byId('job-total').textContent = jobs.length + ' งาน';
+  byId('time-total').textContent = Math.floor(minutes / 60) + ' ชม. ' + (minutes % 60) + ' นาที';
+  byId('manual-total').textContent = manualJobs.length + ' งาน';
+  byId('manual-total').setAttribute('aria-pressed', String(onlyManual));
+  renderPins();
+  fit();
+  photoDetail(visibleGroups[0][0], false);
+}
+
 function stepPhoto(offset) {
-  const index = photoGroups.findIndex(group => group.includes(activePhoto));
-  const next = photoGroups[index + offset];
+  const index = visibleGroups.findIndex(group => group.includes(activePhoto));
+  const next = visibleGroups[index + offset];
   if (index >= 0 && next) photoDetail(next[0]);
 }
 
@@ -70,7 +73,11 @@ function createPhotoCard(photo) {
   image.alt = photoCaption(photo);
   const info = node('div');
   info.className = 'survey-photo-info';
-  if (isRecloserPole(photo)) {
+  const manualJob = manualJobsByPhoto.get(photo.id);
+  if (manualJob) {
+    info.append(node('p', 'งานที่ ' + manualJob[0] + ' · ' + [manualJob[2],manualJob[6],estimatedTime(manualJob)].filter(Boolean).join(' · ')));
+    info.append(node('p', vehicleAccess(manualJob)));
+  } else if (isRecloserPole(photo)) {
     const isInsert = photo === insulatorPhoto;
     const survey = isInsert ? insulatorSurvey : bambooSurvey;
     info.append(node('p', isInsert ? 'ลูกถ้วยก้านตรงรั่ว (Leak) · เฟส C' : 'กอไผ่ 1 กอ · ต้นแรกหลังรีโคลสเซอร์'));
@@ -85,13 +92,13 @@ function createPhotoCard(photo) {
 
 function photoDetail(photo, zoom = true) {
   activePhoto = photo;
-  const index = photoGroups.findIndex(group => group.includes(photo));
-  const group = photoGroups[index];
+  const index = visibleGroups.findIndex(group => group.includes(photo));
+  const group = visibleGroups[index];
   const previous = byId('previous-photo');
   const next = byId('next-photo');
   previous.disabled = index === 0;
-  next.disabled = index === photoGroups.length - 1;
-  byId('photo-position').textContent = (index + 1) + ' / ' + photoGroups.length + ' จุด';
+  next.disabled = index === visibleGroups.length - 1;
+  byId('photo-position').textContent = (index + 1) + ' / ' + visibleGroups.length + ' จุด';
   byId('photo-navigation').hidden = false;
   if (document.activeElement === previous && previous.disabled) next.focus();
   if (document.activeElement === next && next.disabled) previous.focus();
@@ -129,11 +136,15 @@ function highlightPin() {
   });
 }
 const fit = () => {
-  if (map) map.fitBounds(located.map(photo => photo.position), {padding:[35,35], maxZoom:17});
+  if (map) {
+    map.stop();
+    map.fitBounds(visiblePins.map(photo => photo.position), {padding:[35,35], maxZoom:17, animate:false});
+  }
 };
 function renderPins() {
   if (!markers) return;
-  for (const photo of located) {
+  markers.clearLayers();
+  for (const photo of visiblePins) {
     L.marker(photo.position, {
       title: 'รูปที่ ' + photo.id,
       icon: L.divIcon({
@@ -145,11 +156,12 @@ function renderPins() {
     }).on('click', () => photoDetail(photo)).addTo(markers);
   }
 }
-byId('fit').onclick = fit;
+byId('fit').onclick = () => setWorkFilter(false);
+byId('manual-total').onclick = () => setWorkFilter(true);
 byId('previous-photo').onclick = () => stepPhoto(-1);
 byId('next-photo').onclick = () => stepPhoto(1);
 document.addEventListener('keydown', event => {
-  if (!activePhoto || manualDialog.open || event.altKey || event.ctrlKey || event.metaKey ||
+  if (!activePhoto || event.altKey || event.ctrlKey || event.metaKey ||
       event.target.closest('input, textarea, select, [contenteditable]') ||
       !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
   event.preventDefault();
@@ -173,10 +185,7 @@ if (window.L) {
   L.control.layers({'ดาวเทียม + ชื่อสถานที่และถนน':hybrid,'ภาพดาวเทียม Esri':imagery,'แผนที่ถนน':streets},null,{position:'topright'}).addTo(map);
   L.control.scale({imperial:false}).addTo(map);
   markers = L.layerGroup().addTo(map);
-  fit();
 } else {
   byId('map-status').textContent = 'โหลดแผนที่ไม่สำเร็จ ยังเปิดพิกัดแต่ละรูปใน Google Maps ได้จากรายการ';
-  byId('fit').disabled = true;
 }
-renderPins();
-photoDetail(photos[0], false);
+setWorkFilter(false);
