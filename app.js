@@ -3,7 +3,7 @@ const byId = id => document.getElementById(id);
 const photoTab = byId('photo-tab');
 const rowTab = byId('row-tab');
 const search = byId('search');
-const detail = byId('detail');
+const browse = byId('browse');
 const detailBody = byId('detail-body');
 const located = photos.filter(photo => photo.position.length);
 const rowLabels = ['ลำดับ','บริเวณ','สิ่งที่ตรวจพบ','รถเข้าถึง','ความรุนแรง','เวลา','หมายเหตุ','ทีมงาน'];
@@ -221,7 +221,7 @@ function stepPhoto(offset) {
   const next = photos[index + offset];
   if (index >= 0 && next) photoDetail(next);
 }
-function photoDetail(photo) {
+function photoDetail(photo, zoom = true) {
   activePhoto = photo;
   const index = photos.indexOf(photo);
   const previous = byId('previous-photo');
@@ -233,7 +233,7 @@ function photoDetail(photo) {
   if (document.activeElement === previous && previous.disabled) next.focus();
   if (document.activeElement === next && next.disabled) previous.focus();
   const position = photoPosition(photo);
-  if (map && position.length) map.setView(position, Math.max(map.getZoom(), 17));
+  if (map && position.length && zoom) map.setView(position, Math.max(map.getZoom(), 17));
   const image = node('img');
   image.src = photo.file;
   image.alt = 'ภาพลาดตระเวนที่ ' + photo.id;
@@ -263,7 +263,7 @@ function photoDetail(photo) {
     detailBody.append(link);
   }
   detailBody.append(node('p', photo.source));
-  if (!detail.open) detail.showModal();
+  highlightPin();
 }
 function rowDetail(row) {
   activePhoto = null;
@@ -275,7 +275,13 @@ function rowDetail(row) {
     line.append(node('strong', rowLabels[index + 1] + ' '), document.createTextNode(value));
     detailBody.append(line);
   });
-  detail.showModal();
+  highlightPin();
+}
+function highlightPin() {
+  const selected = activePhoto === insulatorPhoto ? polePhoto : activePhoto;
+  markers?.eachLayer(marker => {
+    marker.getElement()?.classList.toggle('pin-selected', marker.options.title === 'รูปที่ ' + selected?.id);
+  });
 }
 const fit = () => {
   if (map) map.fitBounds(located.map(photo => photo.position), {padding:[35,35], maxZoom:17});
@@ -303,17 +309,26 @@ function render() {
       card.append(image);
     }
     card.append(text);
-    card.onclick = () => isPhoto ? photoDetail(item) : rowDetail(item);
+    card.onclick = () => {
+      if (isPhoto) photoDetail(item);
+      else rowDetail(item);
+      browse.open = false;
+      byId('detail-body').querySelector('h2').scrollIntoView({block:'nearest'});
+    };
     return card;
   }));
   if (!items.length) byId('results').append(node('p','ไม่พบรายการ'));
   if (markers) {
     markers.clearLayers();
-    (isPhoto ? items.filter(photo => photo.position.length) : located).forEach(photo => {
+    const visiblePins = isPhoto
+      ? located.filter(photo => items.includes(photo) || (photo === polePhoto && items.includes(insulatorPhoto)))
+      : located;
+    visiblePins.forEach(photo => {
       L.marker(photo.position,{title:'รูปที่ '+photo.id, icon:L.divIcon({
-        className:'pin',html:String(photo.id),iconSize:[30,30],iconAnchor:[15,15]
+        className:'pin',html:'<span><b>' + photo.id + '</b></span>',iconSize:[34,40],iconAnchor:[17,38]
       })}).on('click',()=>photoDetail(photo)).addTo(markers);
     });
+    highlightPin();
   }
 }
 function switchTab(next) {
@@ -331,13 +346,13 @@ search.oninput = render;
 byId('fit').onclick = fit;
 byId('previous-photo').onclick = () => stepPhoto(-1);
 byId('next-photo').onclick = () => stepPhoto(1);
-detail.addEventListener('keydown', event => {
-  if (!activePhoto || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+document.addEventListener('keydown', event => {
+  if (!activePhoto || event.altKey || event.ctrlKey || event.metaKey ||
+      event.target.closest('input, textarea, select, [contenteditable]') ||
+      !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
   event.preventDefault();
   stepPhoto(event.key === 'ArrowLeft' ? -1 : 1);
 });
-byId('close').onclick = () => detail.close();
-detail.addEventListener('click', event => { if (event.target === detail) detail.close(); });
 if (window.L) {
   byId('map-status').remove();
   map = L.map('map',{zoomControl:false});
@@ -355,3 +370,4 @@ if (window.L) {
   byId('fit').disabled = true;
 }
 render();
+photoDetail(photos[0], false);
