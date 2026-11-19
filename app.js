@@ -12,7 +12,8 @@ const manualJobs = rows.filter(row => row[3] === 'เข้าไม่ถึง
 byId('job-total').textContent = rows.length + ' งาน';
 byId('time-total').textContent = Math.floor(workMinutes / 60) + ' ชม. ' + (workMinutes % 60) + ' นาที';
 byId('manual-total').textContent = manualJobs.length + ' งาน';
-byId('manual-total').parentElement.title = 'รถเข้าไม่ถึง · งานที่ ' + manualJobs.map(row => row[0]).join(', ');
+const manualDialog = byId('manual-jobs-dialog');
+byId('manual-total').onclick = () => manualDialog.showModal();
 const bambooSurvey = rows.find(row => row[0] === 1);
 const insulatorSurvey = rows.find(row => row[0] === 2);
 const estimatedTime = row => row?.[5]?.replace('ชั่งโมง', 'ชั่วโมง');
@@ -20,6 +21,17 @@ const vehicleAccess = row => ({
   'เข้าถึง': 'รถเข้าถึงได้',
   'เข้าไม่ถึง': 'รถเข้าถึงไม่ได้ ต้องใช้กำลังคนเข้าปฏิบัติงาน'
 })[row?.[3]];
+const manualList = byId('manual-jobs-list');
+for (const row of manualJobs) {
+  const item = document.createElement('li');
+  const heading = document.createElement('strong');
+  heading.textContent = 'งานที่ ' + row[0] + ' · ' + row[2];
+  const details = document.createElement('span');
+  details.textContent = [row[1], row[6], estimatedTime(row)].filter(Boolean).join(' · ');
+  item.append(heading, details);
+  manualList.append(item);
+}
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 let map;
 let markers;
 let activePhoto = null;
@@ -278,7 +290,13 @@ function photoDetail(photo, zoom = true) {
   if (document.activeElement === previous && previous.disabled) next.focus();
   if (document.activeElement === next && next.disabled) previous.focus();
   const position = photoPosition(photo);
-  if (map && position.length && zoom) map.setView(position, Math.max(map.getZoom(), 17));
+  if (map && position.length && zoom) {
+    map.stop();
+    const targetZoom = Math.max(map.getZoom(), 17);
+    if (reducedMotion.matches) map.setView(position, targetZoom, {animate:false});
+    else if (map.getZoom() === targetZoom) map.panTo(position, {animate:true,duration:.45});
+    else map.flyTo(position, targetZoom, {duration:.65});
+  }
   const gallery = node('div');
   gallery.className = group.length > 1 ? 'survey-gallery multiple' : 'survey-gallery';
   gallery.append(...group.map(createPhotoCard));
@@ -299,7 +317,9 @@ function photoDetail(photo, zoom = true) {
 function highlightPin() {
   const selected = activePhoto === insulatorPhoto ? polePhoto : activePhoto;
   markers?.eachLayer(marker => {
-    marker.getElement()?.classList.toggle('pin-selected', marker.options.title === 'รูปที่ ' + selected?.id);
+    const isSelected = marker.options.title === 'รูปที่ ' + selected?.id;
+    marker.getElement()?.classList.toggle('pin-selected', isSelected);
+    marker.setZIndexOffset(isSelected ? 1000 : 0);
   });
 }
 const fit = () => {
@@ -323,7 +343,7 @@ byId('fit').onclick = fit;
 byId('previous-photo').onclick = () => stepPhoto(-1);
 byId('next-photo').onclick = () => stepPhoto(1);
 document.addEventListener('keydown', event => {
-  if (!activePhoto || event.altKey || event.ctrlKey || event.metaKey ||
+  if (!activePhoto || manualDialog.open || event.altKey || event.ctrlKey || event.metaKey ||
       event.target.closest('input, textarea, select, [contenteditable]') ||
       !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
   event.preventDefault();
