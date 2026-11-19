@@ -62,7 +62,7 @@ const workTimeLabel = row => {
   if (!time) return 'ไม่มีข้อมูลประมาณเวลาทำงาน';
   const photoCount = photoCountByJob.get(row[0]);
   return photoCount > 1
-    ? 'ประมาณเวลาทำงานรวม ' + time + ' (งานเดียวกัน ' + photoCount + ' รูป)'
+    ? 'ประมาณเวลาทำงานรวม ' + time
     : 'ประมาณเวลาทำงาน ' + time;
 };
 const vehicleAccess = row => ({
