@@ -241,15 +241,16 @@ header h1 {font-weight:750}
 }
 
 :root {
-  --gmd-gradient:linear-gradient(112deg,#30234c 0%,#3c416f 52%,#225b61 100%);
+  --gmd-gradient:linear-gradient(112deg,#eee5ff 0%,#e7f2ff 52%,#dff7ef 100%);
 }
 body,header,aside {background:var(--gmd-gradient)}
-header {color:#fff;border-left:0;border-bottom:1px solid #ffffff36}
-.site-title span {color:#fff1c6;background:#ffffff20}
-.work-summary {background:#ffffff28;border-bottom:1px solid #ffffff36}
-.work-summary div,.work-summary .manual-jobs {background:#17192e40}
-.work-summary dt,.work-summary dd {color:#fff}
-#detail {border-color:#ffffff44}
+header {color:#30234c;border-left:0;border-bottom:1px solid #cdc9e4}
+.site-title span {color:#473164;background:#ffffffa6}
+.work-summary {background:#cdd6e7;border-bottom:1px solid #cdd6e7}
+.work-summary div {background:#f7f7ff}
+.work-summary .manual-jobs {background:#e9f8f1}
+.work-summary dt,.work-summary dd {color:#30234c}
+#detail {border-color:#d3dbee}
 #photo-navigation:not([hidden]) {background:#e8ecf7}
 main.map-overview {grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
 main.map-overview aside {display:none}
