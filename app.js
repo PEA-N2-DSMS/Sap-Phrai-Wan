@@ -6,7 +6,12 @@ const search = byId('search');
 const browse = byId('browse');
 const detailBody = byId('detail-body');
 const located = photos.filter(photo => photo.position.length);
-const rowLabels = ['ลำดับ','บริเวณ','สิ่งที่ตรวจพบ','รถเข้าถึง','ความรุนแรง','เวลา','หมายเหตุ','ทีมงาน'];
+const insulatorSurvey = rows.find(row => row[0] === 2);
+const estimatedTime = row => row?.[5]?.replace('ชั่งโมง', 'ชั่วโมง');
+const vehicleAccess = row => ({
+  'เข้าถึง': 'รถเข้าถึงได้',
+  'เข้าไม่ถึง': 'รถเข้าถึงไม่ได้ ต้องใช้กำลังคนเข้าปฏิบัติงาน'
+})[row?.[3]];
 let mode = 'photos';
 let map;
 let markers;
@@ -244,6 +249,11 @@ function photoDetail(photo, zoom = true) {
     detailBody.append(node('h3', 'จุดที่ 1 · ต้นหลังรีโคลสเซอร์'),
       node('p', 'สิ่งที่ตรวจพบ: ลูกถ้วยก้านตรงรั่ว (Leak)'),
       node('p', isInsert ? 'ภาพแทรกแสดงลูกถ้วย ใช้พิกัดเดียวกับรูปที่ 1' : 'รูปที่ 2 เป็นภาพแทรกของลูกถ้วยที่จุดนี้'));
+    appendSurveyFields([
+      ['เวลาประมาณการต่อเหตุ', estimatedTime(insulatorSurvey)],
+      ['การเข้าถึงหน้างาน', vehicleAccess(insulatorSurvey)],
+      ['หมายเหตุ', insulatorSurvey?.[6]]
+    ]);
     const related = node('button', isInsert ? 'กลับไปดูรูปที่ 1' : 'ดูภาพแทรกลูกถ้วย (รูปที่ 2)');
     related.onclick = () => {
       photoDetail(isInsert ? polePhoto : insulatorPhoto);
@@ -265,16 +275,26 @@ function photoDetail(photo, zoom = true) {
   detailBody.append(node('p', photo.source));
   highlightPin();
 }
+function appendSurveyFields(fields) {
+  for (const [label, value] of fields) {
+    if (!value) continue;
+    const line = node('p');
+    line.append(node('strong', label + ' '), document.createTextNode(value));
+    detailBody.append(line);
+  }
+}
 function rowDetail(row) {
   activePhoto = null;
   byId('photo-navigation').hidden = true;
   detailBody.replaceChildren(node('h2', 'รายการสำรวจที่ ' + row[0]));
-  row.slice(1).forEach((value, index) => {
-    if (!value) return;
-    const line = node('p');
-    line.append(node('strong', rowLabels[index + 1] + ' '), document.createTextNode(value));
-    detailBody.append(line);
-  });
+  appendSurveyFields([
+    ['บริเวณ', row[1]],
+    ['คำบรรยาย', [row[2], row[6]].filter(Boolean).join(' · ')],
+    ['เวลาประมาณการต่อเหตุ', estimatedTime(row)],
+    ['การเข้าถึงหน้างาน', vehicleAccess(row)],
+    ['ความรุนแรง', row[4]],
+    ['ทีมงาน', row[7]]
+  ]);
   highlightPin();
 }
 function highlightPin() {
@@ -300,7 +320,7 @@ function render() {
     const card = node('button');
     card.className = 'entry';
     const text = node('span', isPhoto ? 'รูปที่ ' + item.id : item[0] + ' · ' + item[2]);
-    text.append(node('small', isPhoto ? (item === insulatorPhoto ? 'ภาพแทรกของจุดที่ 1 · ' + coordinates(item) : coordinates(item) || 'ไม่มีพิกัด') : [item[1], item[4], item[5]].filter(Boolean).join(' · ')));
+    text.append(node('small', isPhoto ? (item === insulatorPhoto ? 'ภาพแทรกของจุดที่ 1 · ' + coordinates(item) : coordinates(item) || 'ไม่มีพิกัด') : [item[1], estimatedTime(item), vehicleAccess(item)].filter(Boolean).join(' · ')));
     if (isPhoto) {
       const image = node('img');
       image.src = item.file;
