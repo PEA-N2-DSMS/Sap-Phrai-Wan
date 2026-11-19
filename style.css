@@ -196,3 +196,23 @@ header p {font-size:clamp(.95rem,1.15vw,1.25rem);line-height:1.35}
   .energy-caption strong {font-size:.94rem}
   .energy-caption span {font-size:.59rem}
 }
+
+.pin-selected>span {--pin-color:#32f561;color:#10582a;animation:pin-pop .55s ease-out}
+.pin-selected>span::before {filter:drop-shadow(0 0 4px #34ff6490)}
+.pin-selected>span::after {
+  content:"";position:absolute;top:-5px;left:50%;width:32px;height:32px;
+  border:2px solid #9affac;border-radius:50%;transform:translateX(-50%);
+  pointer-events:none;animation:pin-ring .85s ease-out 2 forwards;
+}
+@keyframes pin-pop {0%{transform:scale(.8)}55%{transform:scale(1.25)}100%{transform:scale(1)}}
+@keyframes pin-ring {0%{transform:translateX(-50%) scale(.75);opacity:1}100%{transform:translateX(-50%) scale(1.9);opacity:0}}
+@media(prefers-reduced-motion:reduce) {
+  .pin-selected>span,.pin-selected>span::after {animation:none}
+}
+#manual-total {font:inherit;font-weight:inherit;background:#fff;color:var(--purple-dark);border-color:#b87d28;padding:.12em .55em;text-decoration:underline;text-underline-offset:.14em}
+#manual-jobs-dialog {width:min(590px,calc(100% - 32px));max-height:85dvh;overflow:auto;padding:18px 22px;border:1px solid var(--line);border-radius:14px;color:var(--ink)}
+#manual-jobs-dialog::backdrop {background:#23112b99}
+#manual-jobs-dialog form {display:flex;justify-content:flex-end}
+#manual-jobs-list {list-style:none;margin:12px 0 0;padding:0;display:grid;gap:7px}
+#manual-jobs-list li {display:grid;gap:4px;background:var(--lavender);padding:9px 12px;border-radius:8px}
+#manual-jobs-list span {color:var(--muted)}
