@@ -239,3 +239,17 @@ header h1 {font-weight:750}
   .pin-selected>span {animation:none;transform:scale(1.17)}
   .pin-selected>span::after {animation:none;opacity:0}
 }
+
+:root {
+  --gmd-gradient:linear-gradient(112deg,#30234c 0%,#3c416f 52%,#225b61 100%);
+}
+body,header,aside {background:var(--gmd-gradient)}
+header {color:#fff;border-left:0;border-bottom:1px solid #ffffff36}
+.site-title span {color:#fff1c6;background:#ffffff20}
+.work-summary {background:#ffffff28;border-bottom:1px solid #ffffff36}
+.work-summary div,.work-summary .manual-jobs {background:#17192e40}
+.work-summary dt,.work-summary dd {color:#fff}
+#detail {border-color:#ffffff44}
+#photo-navigation:not([hidden]) {background:#e8ecf7}
+main.map-overview {grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
+main.map-overview aside {display:none}
