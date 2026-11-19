@@ -10,6 +10,201 @@ const rowLabels = ['ลำดับ','บริเวณ','สิ่งที่
 let mode = 'photos';
 let map;
 let markers;
+let activePhoto = null;
+const photoObservations = new Map([
+  [
+    "photos/50.jpg",
+    "แนวสายและเสาไฟฟ้าอยู่ข้างต้นไม้สูง"
+  ],
+  [
+    "photos/49.jpg",
+    "ภาพระยะใกล้ของลูกถ้วยบนคอนเสา"
+  ],
+  [
+    "photos/48.jpg",
+    "ต้นไม้ใหญ่ริมทาง มองเห็นแนวสายด้านข้าง"
+  ],
+  [
+    "photos/47.jpg",
+    "ต้นไม้ใหญ่กลางพื้นที่โล่งใกล้แนวสาย"
+  ],
+  [
+    "photos/46.jpg",
+    "ภาพหัวเสาและอุปกรณ์บนแนวสายไฟฟ้า"
+  ],
+  [
+    "photos/45.jpg",
+    "ภาพหัวเสาและสายไฟฟ้าหลายแนว"
+  ],
+  [
+    "photos/44.jpg",
+    "เรือนยอดต้นไม้อยู่ข้างแนวสาย"
+  ],
+  [
+    "photos/43.jpg",
+    "พุ่มไม้และต้นไม้ขึ้นข้างเสาไฟฟ้า"
+  ],
+  [
+    "photos/42.jpg",
+    "แนวต้นไม้สองฝั่งทางและเสาไฟฟ้าด้านหน้า"
+  ],
+  [
+    "photos/39.jpg",
+    "ต้นไม้สูงอยู่ข้างเสาและแนวสาย"
+  ],
+  [
+    "photos/38.jpg",
+    "เสาไฟฟ้าอยู่ชิดแนวต้นไม้ริมทาง"
+  ],
+  [
+    "photos/37.jpg",
+    "แนวต้นไม้หนาแน่นสองฝั่งทาง"
+  ],
+  [
+    "photos/36.jpg",
+    "เสาและคอนอยู่หน้าเรือนยอดไม้"
+  ],
+  [
+    "photos/35.jpg",
+    "เสาไฟฟ้าอยู่ระหว่างเรือนยอดไม้สองฝั่ง"
+  ],
+  [
+    "photos/34.jpg",
+    "แนวสายผ่านด้านข้างเรือนยอดไม้"
+  ],
+  [
+    "photos/33.jpg",
+    "แนวต้นไม้หนาแน่นบริเวณป้ายริมทาง"
+  ],
+  [
+    "photos/32.jpg",
+    "กิ่งไม้ยื่นเข้ามาบริเวณแนวสาย"
+  ],
+  [
+    "photos/31.jpg",
+    "เรือนยอดไม้ขนาดใหญ่อยู่ข้างแนวสาย"
+  ],
+  [
+    "photos/30.jpg",
+    "ต้นไม้สูงอยู่ด้านข้างแนวสาย"
+  ],
+  [
+    "photos/29.jpg",
+    "เรือนยอดไม้สูงอยู่เหนือระดับคอนเสาในภาพ"
+  ],
+  [
+    "photos/28.jpg",
+    "เสาพร้อมอุปกรณ์ไฟฟ้าและต้นไม้ข้างแนวสาย"
+  ],
+  [
+    "photos/27.jpg",
+    "ต้นไม้ทรงพุ่มกว้างอยู่ข้างแนวสาย"
+  ],
+  [
+    "photos/26.jpg",
+    "กลุ่มต้นไม้สูงบริเวณเสาไฟฟ้า"
+  ],
+  [
+    "photos/25.jpg",
+    "ต้นไม้สูงอยู่ชิดเสาไฟฟ้า"
+  ],
+  [
+    "photos/24.jpg",
+    "ต้นไม้สูงเป็นกลุ่มอยู่ด้านข้างแนวสาย"
+  ],
+  [
+    "photos/23.jpg",
+    "แนวต้นไม้หนาแน่นตามขอบถนน"
+  ],
+  [
+    "photos/22.jpg",
+    "กิ่งไม้ยื่นจากแนวป่าริมทาง"
+  ],
+  [
+    "photos/21.jpg",
+    "มองเห็นแนวเสาไฟฟ้าหลังกลุ่มพุ่มไม้"
+  ],
+  [
+    "photos/20.jpg",
+    "แนวต้นไม้สูงอยู่ด้านหลังเสาไฟฟ้า"
+  ],
+  [
+    "photos/19.jpg",
+    "ภาพสายเหนือศีรษะและเรือนยอดไม้ด้านข้าง"
+  ],
+  [
+    "photos/18.jpg",
+    "ต้นไม้สูงและพืชใบกว้างริมทาง"
+  ],
+  [
+    "photos/17.jpg",
+    "แนวต้นไม้และพืชใบกว้างข้างทาง"
+  ],
+  [
+    "photos/16.jpg",
+    "เสาไฟฟ้าอยู่หน้าเรือนยอดต้นไม้ใหญ่"
+  ],
+  [
+    "photos/15.jpg",
+    "แนวสายผ่านข้างลำต้นและเรือนยอดต้นไม้"
+  ],
+  [
+    "photos/14.jpg",
+    "แนวต้นไม้ขึ้นต่อเนื่องตามไหล่ทาง"
+  ],
+  [
+    "photos/13.jpg",
+    "ต้นไม้และพุ่มไม้ขึ้นตามแนวถนน"
+  ],
+  [
+    "photos/12.jpg",
+    "เรือนยอดไม้แผ่เหนือพื้นที่ริมทาง"
+  ],
+  [
+    "photos/11.jpg",
+    "ต้นไม้และพุ่มไม้ด้านล่างแนวสายหลายเส้น"
+  ],
+  [
+    "photos/10.jpg",
+    "กลุ่มต้นไม้สูงอยู่ในบริเวณริมทาง"
+  ],
+  [
+    "photos/9.jpg",
+    "กิ่งของต้นไม้ใหญ่แผ่เหนือกลุ่มพุ่มไม้"
+  ],
+  [
+    "photos/8.jpg",
+    "ต้นไม้หนาแน่นข้างแนวสายและเสาไฟฟ้า"
+  ],
+  [
+    "photos/7.jpg",
+    "เรือนยอดไม้ชิดบริเวณคอนเสาในภาพ"
+  ],
+  [
+    "photos/6.jpg",
+    "แนวต้นไม้หนาแน่นข้างแนวสาย"
+  ],
+  [
+    "photos/5.jpg",
+    "ต้นไม้ขึ้นเรียงข้างแนวเสาไฟฟ้า"
+  ],
+  [
+    "photos/4.jpg",
+    "เสาและอุปกรณ์อยู่หน้าเรือนยอดไม้"
+  ],
+  [
+    "photos/3.jpg",
+    "แนวต้นไม้สูงล้อมเสาไฟฟ้าในภาพ"
+  ],
+  [
+    "photos/2.jpg",
+    "แนวต้นไม้สองข้างถนนดิน"
+  ],
+  [
+    "photos/1.jpg",
+    "กลุ่มต้นไม้และพืชใบกว้างอยู่ใต้แนวสายที่เห็นในภาพ"
+  ]
+]);
 const node = (tag, value) => {
   const element = document.createElement(tag);
   if (value != null) element.textContent = value;
@@ -17,13 +212,31 @@ const node = (tag, value) => {
 };
 const coordinates = photo => photo.position.map(value => value.toFixed(6)).join(', ');
 const mapsLink = photo => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(coordinates(photo));
+function stepPhoto(offset) {
+  const index = photos.indexOf(activePhoto);
+  const next = photos[index + offset];
+  if (index >= 0 && next) photoDetail(next);
+}
 function photoDetail(photo) {
+  activePhoto = photo;
+  const index = photos.indexOf(photo);
+  const previous = byId('previous-photo');
+  const next = byId('next-photo');
+  previous.disabled = index === 0;
+  next.disabled = index === photos.length - 1;
+  byId('photo-position').textContent = (index + 1) + ' / ' + photos.length;
+  byId('photo-navigation').hidden = false;
+  if (document.activeElement === previous && previous.disabled) next.focus();
+  if (document.activeElement === next && next.disabled) previous.focus();
   if (map && photo.position.length) map.setView(photo.position, Math.max(map.getZoom(), 17));
   const image = node('img');
   image.src = photo.file;
   image.alt = 'ภาพลาดตระเวนที่ ' + photo.id;
   detailBody.replaceChildren(node('h2', 'รูปที่ ' + photo.id), image,
     node('p', photo.position.length ? coordinates(photo) : 'รูปนี้ไม่มีพิกัดกำกับ'));
+  detailBody.append(node('h3', 'สิ่งที่เห็นจากภาพ'),
+    node('p', photoObservations.get(photo.file) || 'ยังไม่มีรายละเอียดจากภาพ'),
+    node('small', 'สาเหตุและรายการในแบบฟอร์มยังไม่ได้ยืนยันกับภาพนี้'));
   if (photo.position.length) {
     const link = node('a', 'เปิดตำแหน่งใน Google Maps');
     link.href = mapsLink(photo);
@@ -32,9 +245,11 @@ function photoDetail(photo) {
     detailBody.append(link);
   }
   detailBody.append(node('p', photo.source));
-  detail.showModal();
+  if (!detail.open) detail.showModal();
 }
 function rowDetail(row) {
+  activePhoto = null;
+  byId('photo-navigation').hidden = true;
   detailBody.replaceChildren(node('h2', 'รายการสำรวจที่ ' + row[0]));
   row.slice(1).forEach((value, index) => {
     if (!value) return;
@@ -96,6 +311,13 @@ photoTab.onclick = () => switchTab('photos');
 rowTab.onclick = () => switchTab('rows');
 search.oninput = render;
 byId('fit').onclick = fit;
+byId('previous-photo').onclick = () => stepPhoto(-1);
+byId('next-photo').onclick = () => stepPhoto(1);
+detail.addEventListener('keydown', event => {
+  if (!activePhoto || !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+  event.preventDefault();
+  stepPhoto(event.key === 'ArrowLeft' ? -1 : 1);
+});
 byId('close').onclick = () => detail.close();
 detail.addEventListener('click', event => { if (event.target === detail) detail.close(); });
 if (window.L) {
