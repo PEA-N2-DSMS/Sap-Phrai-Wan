@@ -244,27 +244,36 @@ function photoDetail(photo, zoom = true) {
   const image = node('img');
   image.src = photo.file;
   image.alt = 'ภาพลาดตระเวนที่ ' + photo.id;
-  detailBody.replaceChildren(node('h2', photoCaption(photo)), image,
-    node('p', position.length ? coordinates(photo) : 'รูปนี้ไม่มีพิกัดกำกับ'));
+  const actions = node('div');
+  actions.className = 'photo-actions';
+  actions.append(node('span', position.length ? coordinates(photo) : 'รูปนี้ไม่มีพิกัดกำกับ'));
+  const more = node('button', 'รายละเอียด');
+  more.onclick = () => byId('photo-info').showModal();
+  actions.append(more);
+  detailBody.classList.add('photo-view');
+  detailBody.replaceChildren(node('h2', photoCaption(photo)), image, actions);
+  const info = byId('photo-info-body');
+  info.replaceChildren(node('h2', photoCaption(photo)), node('p', actions.firstElementChild.textContent));
   if (isRecloserPole(photo)) {
     const isInsert = photo === insulatorPhoto;
     const survey = isInsert ? insulatorSurvey : bambooSurvey;
-    detailBody.append(node('h3', 'จุดที่ 1 · ต้นแรกหลังรีโคลสเซอร์'),
+    info.append(node('h3', 'จุดที่ 1 · ต้นแรกหลังรีโคลสเซอร์'),
       node('p', isInsert ? 'สิ่งที่ตรวจพบ: ลูกถ้วยก้านตรงรั่ว (Leak) เฟส C' : 'สิ่งที่ตรวจพบ: กอไผ่ 1 กอ'),
       node('p', isInsert ? 'ภาพแทรกแสดงลูกถ้วย ใช้พิกัดเดียวกับภาพ 1.1' : 'ภาพ 1.2 เป็นภาพแทรกของลูกถ้วยที่จุดนี้'));
     appendSurveyFields([
       ['เวลาประมาณการต่อเหตุ', estimatedTime(survey)],
       ['การเข้าถึงหน้างาน', vehicleAccess(survey)],
       ['หมายเหตุ', survey?.[6]]
-    ]);
+    ], info);
     const related = node('button', isInsert ? 'กลับไปดูภาพ 1.1' : 'ดูภาพแทรกลูกถ้วย (1.2)');
     related.onclick = () => {
+      byId('photo-info').close();
       photoDetail(isInsert ? polePhoto : insulatorPhoto);
       byId('next-photo').focus();
     };
-    detailBody.append(related);
+    actions.append(related);
   } else {
-  detailBody.append(node('h3', 'สิ่งที่เห็นจากภาพ'),
+  info.append(node('h3', 'สิ่งที่เห็นจากภาพ'),
     node('p', photoObservations.get(photo.file) || 'ยังไม่มีรายละเอียดจากภาพ'),
     node('small', 'สาเหตุและรายการในแบบฟอร์มยังไม่ได้ยืนยันกับภาพนี้'));
   }
@@ -273,20 +282,21 @@ function photoDetail(photo, zoom = true) {
     link.href = mapsLink(photo);
     link.target = '_blank';
     link.rel = 'noopener';
-    detailBody.append(link);
+    info.append(link);
   }
-  detailBody.append(node('p', photo.filename));
+  info.append(node('p', photo.filename));
   highlightPin();
 }
-function appendSurveyFields(fields) {
+function appendSurveyFields(fields, target = detailBody) {
   for (const [label, value] of fields) {
     if (!value) continue;
     const line = node('p');
     line.append(node('strong', label + ' '), document.createTextNode(value));
-    detailBody.append(line);
+    target.append(line);
   }
 }
 function rowDetail(row) {
+  detailBody.classList.remove('photo-view');
   activePhoto = null;
   byId('photo-navigation').hidden = true;
   detailBody.replaceChildren(node('h2', 'รายการสำรวจที่ ' + row[0]));
@@ -336,7 +346,7 @@ function render() {
       if (isPhoto) photoDetail(item);
       else rowDetail(item);
       browse.open = false;
-      byId('detail-body').querySelector('h2').scrollIntoView({block:'nearest'});
+      byId('browse').querySelector('summary').focus();
     };
     return card;
   }));
@@ -370,7 +380,7 @@ byId('fit').onclick = fit;
 byId('previous-photo').onclick = () => stepPhoto(-1);
 byId('next-photo').onclick = () => stepPhoto(1);
 document.addEventListener('keydown', event => {
-  if (!activePhoto || event.altKey || event.ctrlKey || event.metaKey ||
+  if (!activePhoto || byId('photo-info').open || event.altKey || event.ctrlKey || event.metaKey ||
       event.target.closest('input, textarea, select, [contenteditable]') ||
       !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
   event.preventDefault();
