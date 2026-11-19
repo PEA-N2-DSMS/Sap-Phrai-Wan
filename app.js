@@ -48,7 +48,7 @@ const isRecloserPole = photo => photo === polePhoto || photo === insulatorPhoto;
 const photoPosition = photo => photo === insulatorPhoto ? polePhoto.position : photo.position;
 const photoCaption = photo => isSurveyCircuit
   ? 'รายการที่ ' + photo.id
-  : photo.filename.replace(/\.jpg$/i, '');
+  : 'รูปที่ ' + photo.id;
 const coordinates = photo => photoPosition(photo).map(value => value.toFixed(6)).join(', ');
 const mapsLink = photo => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(coordinates(photo));
 const photoGroups = [];
@@ -123,21 +123,31 @@ function createPhotoCard(photo) {
   const image = node('img');
   image.src = photo.file;
   image.alt = photoCaption(photo);
+  const details = node('div');
   const info = node('div');
   info.className = 'survey-photo-info';
+  const filenameDescription = photo.filename
+    .replace(/\.jpg$/i, '')
+    .replace(/^จุดที่\s+\d+(?:\.\d+)*\s*/, '')
+    .trim();
   const manualJob = manualJobsByPhoto.get(photo.id);
+  let description = [filenameDescription, photo.description].filter(Boolean).join(' · ');
   if (manualJob) {
     info.append(node('p', 'งานที่ ' + manualJob[0] + ' · ' + [manualJob[2],manualJob[6],estimatedTime(manualJob)].filter(Boolean).join(' · ')));
     info.append(node('p', vehicleAccess(manualJob)));
   } else if (isRecloserPole(photo)) {
     const isInsert = photo === insulatorPhoto;
     const survey = isInsert ? insulatorSurvey : bambooSurvey;
-    info.append(node('p', isInsert ? 'ลูกถ้วยก้านตรงรั่ว (Leak) · เฟส C' : 'กอไผ่ 1 กอ · ต้นแรกหลังรีโคลสเซอร์'));
+    description = isInsert ? 'ลูกถ้วยก้านตรงรั่ว (Leak) · เฟส C' : 'กอไผ่ 1 กอ · ต้นแรกหลังรีโคลสเซอร์';
     info.append(node('p', [estimatedTime(survey), vehicleAccess(survey)].filter(Boolean).join(' · ')));
-  } else if (photo.description) {
-    info.append(node('p', photo.description));
   }
-  card.append(node('h2', photoCaption(photo)), image);
+  details.append(node('h2', photoCaption(photo)));
+  if (description) {
+    const caption = node('p', description);
+    caption.className = 'survey-photo-info';
+    details.append(caption);
+  }
+  card.append(details, image);
   if (info.childElementCount) card.append(info);
   return card;
 }
