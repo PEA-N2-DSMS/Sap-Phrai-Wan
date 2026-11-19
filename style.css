@@ -309,9 +309,13 @@ main.map-overview aside {display:none}
 #browse-survey {font:inherit;padding:.12em .55em}
 .record-images {display:flex;gap:6px;min-height:0;min-width:0}
 #detail-body.photo-view .record-images img {flex:1;min-width:0;width:0}
-#detail-body :is(p.survey-photo-info,.survey-record > p) {
+#detail-body .survey-photo .photo-heading {
   margin:0;
-  color:#25162c;
+  padding:.35em .55em;
+  border-inline-start:4px solid #c7911b;
+  border-radius:6px;
+  background:linear-gradient(110deg,#f0e0ef,#fff4dc);
+  color:#351636;
   font-size:clamp(1.0625rem,1.45vw,1.3rem);
   font-weight:700;
   line-height:1.45;

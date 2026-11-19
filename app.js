@@ -102,6 +102,13 @@ function stepPhoto(offset) {
   if (index >= 0 && next) photoDetail(next[0]);
 }
 
+function photoHeading(photo, description) {
+  const heading = node('h2', photoCaption(photo));
+  heading.className = 'photo-heading';
+  if (description) heading.append(' : ' + description);
+  return heading;
+}
+
 function createPhotoCard(photo) {
   const card = node('article');
   card.className = 'survey-photo';
@@ -115,15 +122,13 @@ function createPhotoCard(photo) {
       images.append(image);
     }
     if (!photo.images.length) images.append(node('p', 'ไม่พบไฟล์ภาพใน ZIP'));
-    card.append(node('h2', photoCaption(photo)), images);
-    if (photo.description) card.append(node('p', photo.description));
+    card.append(photoHeading(photo, photo.description), images);
     card.classList.add('survey-record');
     return card;
   }
   const image = node('img');
   image.src = photo.file;
   image.alt = photoCaption(photo);
-  const details = node('div');
   const info = node('div');
   info.className = 'survey-photo-info';
   const filenameDescription = photo.filename
@@ -141,13 +146,7 @@ function createPhotoCard(photo) {
     description = isInsert ? 'ลูกถ้วยก้านตรงรั่ว (Leak) · เฟส C' : 'กอไผ่ 1 กอ · ต้นแรกหลังรีโคลสเซอร์';
     info.append(node('p', [estimatedTime(survey), vehicleAccess(survey)].filter(Boolean).join(' · ')));
   }
-  details.append(node('h2', photoCaption(photo)));
-  if (description) {
-    const caption = node('p', description);
-    caption.className = 'survey-photo-info';
-    details.append(caption);
-  }
-  card.append(details, image);
+  card.append(photoHeading(photo, description), image);
   if (info.childElementCount) card.append(info);
   return card;
 }
