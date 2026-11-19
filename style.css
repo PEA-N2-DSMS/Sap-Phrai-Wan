@@ -246,8 +246,8 @@ header h1 {font-weight:750}
 body,aside {background:var(--gmd-gradient)}
 header {
   display:grid;
-  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-  background:linear-gradient(90deg,#102754 0%,#fff 50%,#662983 100%);
+  grid-template-columns:minmax(0,1fr) auto auto;
+  background:linear-gradient(105deg,#461446 0%,#8b287f 53%,#9c3490 65%,#d8a344 91%,#f9ce8a 100%);
   color:#30234c;
   border-left:0;
   border-bottom:1px solid #cdc9e4;
@@ -273,16 +273,40 @@ header .site-title {
 main.map-overview {grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
 main.map-overview aside {display:none}
 
+.circuit-picker {
+  position:relative;
+}
+.circuit-picker::after {
+  content:"";
+  position:absolute;
+  inset-inline-end:.75rem;
+  top:50%;
+  width:.4rem;
+  height:.4rem;
+  border:solid #8b287f;
+  border-width:0 2px 2px 0;
+  transform:translateY(-70%) rotate(45deg);
+  pointer-events:none;
+}
 #circuit {
-  justify-self:end;
-  max-width: 100%;
-  padding: .35em .45em;
-  border: 1px solid #cdc9e4;
-  border-radius: 5px;
-  background: #fff;
-  color: #473164;
-  font: inherit;
-  font-size: clamp(.75rem, 2.5vw, 1rem);
+  appearance:none;
+  width:100%;
+  padding:.4em 1.85rem .4em .65rem;
+  border:1px solid #e8bc68;
+  border-radius:8px;
+  background:#fff8ea;
+  color:#461446;
+  box-shadow:0 2px 5px #46144630;
+  font:inherit;
+  font-size:clamp(.75rem,2.5vw,1rem);
+  font-weight:700;
+  cursor:pointer;
+}
+#circuit:hover {background:#fff}
+#circuit:focus-visible {outline:2px solid #fff;outline-offset:2px}
+@media (forced-colors:active) {
+  .circuit-picker::after {display:none}
+  #circuit {appearance:auto;padding-inline-end:.65rem}
 }
 #browse-survey {font:inherit;padding:.12em .55em}
 .record-images {display:flex;gap:6px;min-height:0;min-width:0}
