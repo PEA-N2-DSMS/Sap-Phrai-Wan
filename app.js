@@ -210,7 +210,11 @@ const node = (tag, value) => {
   if (value != null) element.textContent = value;
   return element;
 };
-const coordinates = photo => photo.position.map(value => value.toFixed(6)).join(', ');
+const polePhoto = photos.find(photo => photo.file === 'photos/50.jpg');
+const insulatorPhoto = photos.find(photo => photo.file === 'photos/49.jpg');
+const isRecloserPole = photo => photo === polePhoto || photo === insulatorPhoto;
+const photoPosition = photo => photo === insulatorPhoto ? polePhoto.position : photo.position;
+const coordinates = photo => photoPosition(photo).map(value => value.toFixed(6)).join(', ');
 const mapsLink = photo => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(coordinates(photo));
 function stepPhoto(offset) {
   const index = photos.indexOf(activePhoto);
@@ -228,16 +232,30 @@ function photoDetail(photo) {
   byId('photo-navigation').hidden = false;
   if (document.activeElement === previous && previous.disabled) next.focus();
   if (document.activeElement === next && next.disabled) previous.focus();
-  if (map && photo.position.length) map.setView(photo.position, Math.max(map.getZoom(), 17));
+  const position = photoPosition(photo);
+  if (map && position.length) map.setView(position, Math.max(map.getZoom(), 17));
   const image = node('img');
   image.src = photo.file;
   image.alt = 'ภาพลาดตระเวนที่ ' + photo.id;
   detailBody.replaceChildren(node('h2', 'รูปที่ ' + photo.id), image,
-    node('p', photo.position.length ? coordinates(photo) : 'รูปนี้ไม่มีพิกัดกำกับ'));
+    node('p', position.length ? coordinates(photo) : 'รูปนี้ไม่มีพิกัดกำกับ'));
+  if (isRecloserPole(photo)) {
+    const isInsert = photo === insulatorPhoto;
+    detailBody.append(node('h3', 'จุดที่ 1 · ต้นหลังรีโคลสเซอร์'),
+      node('p', 'สิ่งที่ตรวจพบ: ลูกถ้วยก้านตรงรั่ว (Leak)'),
+      node('p', isInsert ? 'ภาพแทรกแสดงลูกถ้วย ใช้พิกัดเดียวกับรูปที่ 1' : 'รูปที่ 2 เป็นภาพแทรกของลูกถ้วยที่จุดนี้'));
+    const related = node('button', isInsert ? 'กลับไปดูรูปที่ 1' : 'ดูภาพแทรกลูกถ้วย (รูปที่ 2)');
+    related.onclick = () => {
+      photoDetail(isInsert ? polePhoto : insulatorPhoto);
+      byId('next-photo').focus();
+    };
+    detailBody.append(related);
+  } else {
   detailBody.append(node('h3', 'สิ่งที่เห็นจากภาพ'),
     node('p', photoObservations.get(photo.file) || 'ยังไม่มีรายละเอียดจากภาพ'),
     node('small', 'สาเหตุและรายการในแบบฟอร์มยังไม่ได้ยืนยันกับภาพนี้'));
-  if (photo.position.length) {
+  }
+  if (position.length) {
     const link = node('a', 'เปิดตำแหน่งใน Google Maps');
     link.href = mapsLink(photo);
     link.target = '_blank';
@@ -266,17 +284,17 @@ function render() {
   const query = search.value.trim().toLowerCase();
   const isPhoto = mode === 'photos';
   const items = (isPhoto ? photos : rows).filter(item => {
-    const value = isPhoto ? ['รูปที่ ' + item.id, coordinates(item), item.source, item.position.length ? '' : 'ไม่มีพิกัด'] : item;
+    const value = isPhoto ? ['รูปที่ ' + item.id, coordinates(item), item.source, isRecloserPole(item) ? 'ต้นหลังรีโคลสเซอร์ ลูกถ้วยรั่ว Leak' : (item.position.length ? '' : 'ไม่มีพิกัด')] : item;
     return value.join(' ').toLowerCase().includes(query);
   });
   byId('summary').textContent = isPhoto
-    ? `แสดง ${items.length} จาก ${photos.length} รูป · มีพิกัด ${located.length} รูป`
+    ? `แสดง ${items.length} จาก ${photos.length} รูป · ${located.length} จุดบนแผนที่`
     : `แสดง ${items.length} จาก ${rows.length} รายการ · ตามแบบฟอร์มต้นฉบับ`;
   byId('results').replaceChildren(...items.map(item => {
     const card = node('button');
     card.className = 'entry';
     const text = node('span', isPhoto ? 'รูปที่ ' + item.id : item[0] + ' · ' + item[2]);
-    text.append(node('small', isPhoto ? coordinates(item) || 'ไม่มีพิกัด' : [item[1], item[4], item[5]].filter(Boolean).join(' · ')));
+    text.append(node('small', isPhoto ? (item === insulatorPhoto ? 'ภาพแทรกของจุดที่ 1 · ' + coordinates(item) : coordinates(item) || 'ไม่มีพิกัด') : [item[1], item[4], item[5]].filter(Boolean).join(' · ')));
     if (isPhoto) {
       const image = node('img');
       image.src = item.file;
