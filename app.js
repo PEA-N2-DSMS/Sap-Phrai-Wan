@@ -119,6 +119,14 @@ function photoHeading(photo, description) {
   return heading;
 }
 
+function appendWorkDetails(info, row) {
+  const text = [workTimeLabel(row), vehicleAccess(row)].filter(Boolean).join(' · ');
+  if (!text) return;
+  const details = node('p', text);
+  details.className = 'work-details';
+  info.append(details);
+}
+
 function createPhotoCard(photo) {
   const card = node('article');
   card.className = 'survey-photo';
@@ -149,12 +157,12 @@ function createPhotoCard(photo) {
   let description = [filenameDescription, photo.description].filter(Boolean).join(' · ');
   if (manualJob) {
     info.append(node('p', 'งานที่ ' + manualJob[0] + ' · ' + [manualJob[2],manualJob[6]].filter(Boolean).join(' · ')));
-    info.append(node('p', [workTimeLabel(manualJob), vehicleAccess(manualJob)].filter(Boolean).join(' · ')));
+    appendWorkDetails(info, manualJob);
   } else if (isRecloserPole(photo)) {
     const isInsert = photo === insulatorPhoto;
     const survey = isInsert ? insulatorSurvey : bambooSurvey;
     description = isInsert ? 'ลูกถ้วยก้านตรงรั่ว (Leak) · เฟส C' : 'กอไผ่ 1 กอ · ต้นแรกหลังรีโคลสเซอร์';
-    info.append(node('p', [workTimeLabel(survey), vehicleAccess(survey)].filter(Boolean).join(' · ')));
+    appendWorkDetails(info, survey);
   }
   card.append(photoHeading(photo, description), image);
   if (info.childElementCount) card.append(info);

@@ -355,3 +355,10 @@ main.map-overview aside {display:none}
   text-decoration:none;
 }
 #detail-body .survey-location a:hover {background:#400848}
+
+#detail-body .survey-photo-info .work-details {
+  padding:.2em .45em;
+  border:1px solid #58185830;
+  border-radius:6px;
+  background:#58185808;
+}
