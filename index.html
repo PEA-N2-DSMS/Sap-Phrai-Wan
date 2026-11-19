@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แผนที่ลาดตระเวน | ทรัพย์ไพรวัลย์</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="style.css">
+<script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script defer src="data.js"></script>
+<script defer src="app.js"></script>
+</head>
+<body>
+<header><div class="symbol" aria-hidden="true">⌖</div><div><h1>แผนที่ลาดตระเวนทรัพย์ไพรวัลย์</h1><p>WGT03VR-105 · ฟีดเดอร์ 3</p></div><button id="fit">ดูทุกหมุด</button></header>
+<main>
+ <aside>
+  <div class="tabs"><button id="photo-tab" aria-pressed="true">ภาพสำรวจ</button><button id="row-tab" aria-pressed="false">แบบฟอร์ม Excel</button></div>
+  <label class="sr" for="search">ค้นหาในรายการ</label><input id="search" type="search" placeholder="ค้นหาเลขรูปหรือพิกัด">
+  <p id="summary" role="status"></p><div id="results"></div>
+ </aside>
+ <section id="map" aria-label="แผนที่ภาพดาวเทียม"><p id="map-status" role="status">กำลังโหลดแผนที่ภาพดาวเทียม</p></section>
+</main>
+<dialog id="detail"><button id="close" aria-label="ปิดรายละเอียด">×</button><div id="detail-body"></div></dialog>
+</body>
+</html>
