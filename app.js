@@ -1,9 +1,5 @@
 const {photos, rows} = patrolData;
 const byId = id => document.getElementById(id);
-const photoTab = byId('photo-tab');
-const rowTab = byId('row-tab');
-const search = byId('search');
-const browse = byId('browse');
 const detailBody = byId('detail-body');
 const located = photos.filter(photo => photo.position.length);
 const workMinutes = rows.reduce((total, row) => {
@@ -24,7 +20,6 @@ const vehicleAccess = row => ({
   'เข้าถึง': 'รถเข้าถึงได้',
   'เข้าไม่ถึง': 'รถเข้าถึงไม่ได้ ต้องใช้กำลังคนเข้าปฏิบัติงาน'
 })[row?.[3]];
-let mode = 'photos';
 let map;
 let markers;
 let activePhoto = null;
@@ -301,29 +296,6 @@ function photoDetail(photo, zoom = true) {
   detailBody.replaceChildren(gallery, location);
   highlightPin();
 }
-function appendSurveyFields(fields, target = detailBody) {
-  for (const [label, value] of fields) {
-    if (!value) continue;
-    const line = node('p');
-    line.append(node('strong', label + ' '), document.createTextNode(value));
-    target.append(line);
-  }
-}
-function rowDetail(row) {
-  detailBody.classList.remove('photo-view');
-  activePhoto = null;
-  byId('photo-navigation').hidden = true;
-  detailBody.replaceChildren(node('h2', 'รายการสำรวจที่ ' + row[0]));
-  appendSurveyFields([
-    ['บริเวณ', row[1]],
-    ['คำบรรยาย', [row[2], row[6]].filter(Boolean).join(' · ')],
-    ['เวลาประมาณการต่อเหตุ', estimatedTime(row)],
-    ['การเข้าถึงหน้างาน', vehicleAccess(row)],
-    ['ความรุนแรง', row[4]],
-    ['ทีมงาน', row[7]]
-  ]);
-  highlightPin();
-}
 function highlightPin() {
   const selected = activePhoto === insulatorPhoto ? polePhoto : activePhoto;
   markers?.eachLayer(marker => {
@@ -333,63 +305,20 @@ function highlightPin() {
 const fit = () => {
   if (map) map.fitBounds(located.map(photo => photo.position), {padding:[35,35], maxZoom:17});
 };
-function render() {
-  const query = search.value.trim().toLowerCase();
-  const isPhoto = mode === 'photos';
-  const items = (isPhoto ? photos : rows).filter(item => {
-    const value = isPhoto ? ['รูปที่ ' + item.id, coordinates(item), item.filename, item.source, isRecloserPole(item) ? 'ต้นหลังรีโคลสเซอร์ ลูกถ้วยรั่ว Leak' : (item.position.length ? '' : 'ไม่มีพิกัด')] : item;
-    return value.join(' ').toLowerCase().includes(query);
-  });
-  byId('summary').textContent = isPhoto
-    ? `แสดง ${items.length} จาก ${photos.length} รูป · ${located.length} จุดบนแผนที่`
-    : `แสดง ${items.length} จาก ${rows.length} รายการ · ตามแบบฟอร์มต้นฉบับ`;
-  byId('results').replaceChildren(...items.map(item => {
-    const card = node('button');
-    card.className = 'entry';
-    const text = node('span', isPhoto ? photoCaption(item) : item[0] + ' · ' + item[2]);
-    text.append(node('small', isPhoto ? (item === insulatorPhoto ? 'ภาพแทรกของจุดที่ 1 · ' + coordinates(item) : coordinates(item) || 'ไม่มีพิกัด') : [item[1], estimatedTime(item), vehicleAccess(item)].filter(Boolean).join(' · ')));
-    if (isPhoto) {
-      const image = node('img');
-      image.src = item.file;
-      image.alt = '';
-      image.loading = 'lazy';
-      card.append(image);
-    }
-    card.append(text);
-    card.onclick = () => {
-      if (isPhoto) photoDetail(item);
-      else rowDetail(item);
-      browse.open = false;
-      byId('browse').querySelector('summary').focus();
-    };
-    return card;
-  }));
-  if (!items.length) byId('results').append(node('p','ไม่พบรายการ'));
-  if (markers) {
-    markers.clearLayers();
-    const visiblePins = isPhoto
-      ? located.filter(photo => items.includes(photo) || (photo === polePhoto && items.includes(insulatorPhoto)))
-      : located;
-    visiblePins.forEach(photo => {
-      L.marker(photo.position,{title:'รูปที่ '+photo.id, icon:L.divIcon({
-        className:'pin',html:'<span><b>' + photo.id + '</b></span>',iconSize:[34,40],iconAnchor:[17,38]
-      })}).on('click',()=>photoDetail(photo)).addTo(markers);
-    });
-    highlightPin();
+function renderPins() {
+  if (!markers) return;
+  for (const photo of located) {
+    L.marker(photo.position, {
+      title: 'รูปที่ ' + photo.id,
+      icon: L.divIcon({
+        className: 'pin',
+        html: '<span><b>' + photo.id + '</b></span>',
+        iconSize: [34,40],
+        iconAnchor: [17,38]
+      })
+    }).on('click', () => photoDetail(photo)).addTo(markers);
   }
 }
-function switchTab(next) {
-  mode = next;
-  const isPhoto = mode === 'photos';
-  photoTab.setAttribute('aria-pressed',isPhoto);
-  rowTab.setAttribute('aria-pressed',!isPhoto);
-  search.value = '';
-  search.placeholder = isPhoto ? 'ค้นหาเลขรูปหรือพิกัด' : 'ค้นหาลำดับ บริเวณ หรือสิ่งที่ตรวจพบ';
-  render();
-}
-photoTab.onclick = () => switchTab('photos');
-rowTab.onclick = () => switchTab('rows');
-search.oninput = render;
 byId('fit').onclick = fit;
 byId('previous-photo').onclick = () => stepPhoto(-1);
 byId('next-photo').onclick = () => stepPhoto(1);
@@ -423,5 +352,5 @@ if (window.L) {
   byId('map-status').textContent = 'โหลดแผนที่ไม่สำเร็จ ยังเปิดพิกัดแต่ละรูปใน Google Maps ได้จากรายการ';
   byId('fit').disabled = true;
 }
-render();
+renderPins();
 photoDetail(photos[0], false);
