@@ -189,10 +189,11 @@ if (window.L) {
     {maxZoom:20,maxNativeZoom:19,zIndex:2,attribution:'Roads © Esri, HERE, Garmin'});
   const places = L.tileLayer(reference + 'World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
     {maxZoom:20,maxNativeZoom:19,zIndex:3,attribution:'Place names © Esri and contributors'});
-  const hybrid = L.layerGroup([L.tileLayer(imageryUrl, imageryOptions), highways, places]).addTo(map);
+  const hybrid = L.layerGroup([L.tileLayer(imageryUrl, imageryOptions), highways, places]);
   const streets = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {maxZoom:20,maxNativeZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'});
-  L.control.layers({'ดาวเทียม + ชื่อสถานที่และถนน':hybrid,'ภาพดาวเทียม Esri':imagery,'แผนที่ถนน':streets},null,{position:'topright'}).addTo(map);
+    {maxZoom:20,maxNativeZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'}).addTo(map);
+  // Begin with the free street map. Keep satellite imagery as an optional layer.
+  L.control.layers({'แผนที่ถนน (ฟรี)':streets,'ดาวเทียม + ชื่อสถานที่และถนน':hybrid,'ภาพดาวเทียม Esri':imagery},null,{position:'topright'}).addTo(map);
   L.control.scale({imperial:false}).addTo(map);
   markers = L.layerGroup().addTo(map);
 } else {
