@@ -120,25 +120,18 @@ for (const photo of photos) {
 const located = (isSurveyCircuit ? photoGroups.map(group => group[0]) : photos)
   .filter(photo => photo.position.length);
 
-let visibleGroups = photoGroups;
-let visiblePins = located;
-function setWorkFilter(onlyManual) {
+let showManualPins = false;
+function showOverview(highlightManual) {
+  showManualPins = highlightManual;
   const manualJobs = rows.filter(row => row[3] === 'เข้าไม่ถึง');
-  const jobs = onlyManual ? manualJobs : rows;
-  const minutes = totalMinutes(jobs);
-  visibleGroups = onlyManual ? photoGroups.filter(group => group.some(isManualPhoto)) : photoGroups;
-  visiblePins = onlyManual
-    ? isSurveyCircuit
-      ? visibleGroups.map(group => group[0]).filter(photo => photo.position.length)
-      : located.filter(isManualPhoto)
-    : located;
-  byId('job-total').textContent = jobs.length + ' งาน';
-  byId('job-total').disabled = visibleGroups.length === 0;
-  byId('time-total').textContent = jobs.some(job => job[5])
+  const minutes = totalMinutes(rows);
+  byId('job-total').textContent = rows.length + ' งาน';
+  byId('job-total').disabled = photoGroups.length === 0;
+  byId('time-total').textContent = rows.some(job => job[5])
     ? Math.floor(minutes / 60) + ' ชม. ' + (minutes % 60) + ' นาที'
     : '—';
   byId('manual-total').textContent = manualJobs.length + ' งาน';
-  byId('manual-total').setAttribute('aria-pressed', String(onlyManual));
+  byId('manual-total').setAttribute('aria-pressed', String(highlightManual));
   activePhoto = null;
   dashboard.classList.add('map-overview');
   detailBody.replaceChildren();
@@ -146,7 +139,7 @@ function setWorkFilter(onlyManual) {
   map?.stop();
   map?.invalidateSize({pan:false, animate:false});
   renderPins();
-  fit(onlyManual);
+  fit(highlightManual);
   overviewAnimation?.cancel();
   if (!reducedMotion.matches) {
     overviewAnimation = byId('map').animate(
@@ -157,8 +150,8 @@ function setWorkFilter(onlyManual) {
 }
 
 function stepPhoto(offset) {
-  const index = visibleGroups.findIndex(group => group.includes(activePhoto));
-  const next = visibleGroups[index + offset];
+  const index = photoGroups.findIndex(group => group.includes(activePhoto));
+  const next = photoGroups[index + offset];
   if (index >= 0 && next) photoDetail(next[0]);
 }
 
@@ -218,8 +211,8 @@ byId('edit-form').onsubmit = event => {
   editor.close();
   const photo = activePhoto;
   const onlyManual = byId('manual-total').getAttribute('aria-pressed') === 'true';
-  setWorkFilter(onlyManual);
-  if (visibleGroups.some(group => group.includes(photo))) {
+  showOverview(onlyManual);
+  if (photoGroups.some(group => group.includes(photo))) {
     photoDetail(photo);
     detailBody.querySelector('[aria-label="แก้ไข ' + photoCaption(editingPhoto) + '"]')?.focus();
   }
@@ -279,13 +272,13 @@ function photoDetail(photo) {
     dashboard.classList.remove('map-overview');
     map?.invalidateSize({pan:false, animate:false});
   }
-  const index = visibleGroups.findIndex(group => group.includes(photo));
-  const group = visibleGroups[index];
+  const index = photoGroups.findIndex(group => group.includes(photo));
+  const group = photoGroups[index];
   const previous = byId('previous-photo');
   const next = byId('next-photo');
   previous.disabled = index === 0;
-  next.disabled = index === visibleGroups.length - 1;
-  byId('photo-position').textContent = (index + 1) + ' / ' + visibleGroups.length + ' จุด';
+  next.disabled = index === photoGroups.length - 1;
+  byId('photo-position').textContent = (index + 1) + ' / ' + photoGroups.length + ' จุด';
   byId('photo-navigation').hidden = false;
   if (document.activeElement === previous && previous.disabled) next.focus();
   if (document.activeElement === next && next.disabled) previous.focus();
@@ -326,17 +319,23 @@ function highlightPin() {
   const selected = activePhoto === insulatorPhoto ? polePhoto : activePhoto;
   markers?.eachLayer(marker => {
     const isSelected = marker.options.title === (selected && markerTitle(selected));
+    const highlighted = showManualPins && isManualPin(marker.options.surveyPhoto);
     marker.getElement()?.classList.toggle('pin-selected', isSelected);
-    marker.setZIndexOffset(isSelected ? 1000 : 0);
+    marker.getElement()?.classList.toggle('pin-manual', highlighted);
+    marker.setZIndexOffset(isSelected ? 1000 : highlighted ? 500 : 0);
   });
 }
-const fit = onlyManual => {
+const isManualPin = photo => isSurveyCircuit
+  ? photoGroups.find(group => group[0] === photo).some(isManualPhoto)
+  : isManualPhoto(photo);
+const fit = highlightManual => {
   if (map) {
     map.stop();
-    if (!visiblePins.length) return;
-    const bounds = L.latLngBounds(visiblePins.map(photo => photo.position));
-    if (onlyManual) {
-      map.fitBounds(bounds, {padding:[35,35], maxZoom:17, animate:false});
+    if (!located.length) return;
+    const bounds = L.latLngBounds(located.map(photo => photo.position));
+    const manualPins = highlightManual ? located.filter(isManualPin) : [];
+    if (manualPins.length) {
+      map.fitBounds(manualPins.map(photo => photo.position), {padding:[35,35], maxZoom:17, animate:false});
     } else {
       map.setView(bounds.getCenter(), overviewZoom, {animate:false});
     }
@@ -346,22 +345,24 @@ const markerTitle = photo => (isSurveyCircuit ? 'รายการที่ ' :
 function renderPins() {
   if (!markers) return;
   markers.clearLayers();
-  for (const photo of visiblePins) {
+  for (const photo of located) {
     L.marker(photo.position, {
+      surveyPhoto: photo,
       title: markerTitle(photo),
       alt: markerTitle(photo),
       icon: L.divIcon({
         className: 'pin',
         html: '<span><b>' + photo.id + '</b></span>',
         iconSize: [34,40],
-        iconAnchor: [17,38]
+        iconAnchor: [17,36]
       })
     }).on('click', () => photoDetail(photo)).addTo(markers);
   }
+  highlightPin();
 }
-byId('job-total').onclick = () => photoDetail(visibleGroups[0][0]);
-byId('fit').onclick = () => setWorkFilter(false);
-byId('manual-total').onclick = () => setWorkFilter(true);
+byId('job-total').onclick = () => photoDetail(photoGroups[0][0]);
+byId('fit').onclick = () => showOverview(false);
+byId('manual-total').onclick = () => showOverview(true);
 byId('previous-photo').onclick = () => stepPhoto(-1);
 byId('next-photo').onclick = () => stepPhoto(1);
 document.addEventListener('keydown', event => {
@@ -386,4 +387,4 @@ if (window.L) {
 } else {
   byId('map-status').textContent = 'โหลดแผนที่ไม่สำเร็จ กรุณาตรวจการเชื่อมต่อแล้วโหลดหน้าใหม่';
 }
-setWorkFilter(false);
+showOverview(false);
