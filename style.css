@@ -42,7 +42,7 @@ aside {min-width:0;overflow:auto;padding:16px 20px;border-left:1px solid var(--l
 .pin>span {position:relative;display:grid;justify-items:center;align-items:start;width:24px;height:36px;color:#a31d31;--pin-color:#d52338}
 .pin>span::before {content:"";position:absolute;inset:0;background:var(--pin-color);mask:url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 38%27%3E%3Cpath d=%27M12 0C5.4 0 0 5.4 0 12c0 7.7 8.4 13.3 12 26 3.6-12.7 12-18.3 12-26C24 5.4 18.6 0 12 0Z%27/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 1px 1px #0008)}
 .pin b {position:relative;margin-top:6px;background:#fff;border-radius:50%;min-width:12px;height:12px;text-align:center;font:700 9px/12px system-ui,sans-serif}
-.pin-selected>span {--pin-color:#167b44;color:#126336}
+:is(.pin-selected,.pin-manual)>span {--pin-color:#167b44;color:#126336}
 .sr {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 
 html,body {overflow:hidden;overscroll-behavior:none}
@@ -192,9 +192,9 @@ header h1 {font-size:clamp(1.12rem,1.55vw,1.65rem);line-height:1.2;overflow-wrap
   .energy-footer {height:35px}
 }
 
-.pin-selected>span {--pin-color:#32f561;color:#10582a;animation:pin-pop .55s ease-out}
-.pin-selected>span::before {filter:drop-shadow(0 0 4px #34ff6490)}
-.pin-selected>span::after {
+:is(.pin-selected,.pin-manual)>span {--pin-color:#32f561;color:#10582a;animation:pin-pop .55s ease-out}
+:is(.pin-selected,.pin-manual)>span::before {filter:drop-shadow(0 0 4px #34ff6490)}
+:is(.pin-selected,.pin-manual)>span::after {
   content:"";position:absolute;top:-5px;left:50%;width:32px;height:32px;
   border:2px solid #9affac;border-radius:50%;transform:translateX(-50%);
   pointer-events:none;animation:pin-ring .85s ease-out 2 forwards;
@@ -202,7 +202,7 @@ header h1 {font-size:clamp(1.12rem,1.55vw,1.65rem);line-height:1.2;overflow-wrap
 @keyframes pin-pop {0%{transform:scale(.8)}55%{transform:scale(1.25)}100%{transform:scale(1)}}
 @keyframes pin-ring {0%{transform:translateX(-50%) scale(.75);opacity:1}100%{transform:translateX(-50%) scale(1.9);opacity:0}}
 @media(prefers-reduced-motion:reduce) {
-  .pin-selected>span,.pin-selected>span::after {animation:none}
+  :is(.pin-selected,.pin-manual)>span,:is(.pin-selected,.pin-manual)>span::after {animation:none}
 }
 #manual-total {font:inherit;font-weight:inherit;background:#fff;color:var(--purple-dark);border-color:#b87d28;padding:.12em .55em;text-decoration:underline;text-underline-offset:.14em}
 
@@ -229,13 +229,13 @@ header h1 {font-weight:750}
 #fit {background:#ffd36c;color:#401746;box-shadow:0 0 0 2px #e9b84155}
 #fit:hover:not(:disabled) {background:#ffdf91;color:#401746}
 #manual-total[aria-pressed=true] {background:#fff0a2;border-color:#9d6c11}
-.pin-selected>span {--pin-color:#17e600;color:#15420e;transform-origin:center bottom;animation:active-pin-breathe 1.5s ease-in-out infinite}
-.pin-selected>span::before {filter:drop-shadow(0 0 5px #52ff38)}
-.pin-selected>span::after {border-color:#52ff38;animation:pin-ring 1.5s ease-out infinite}
+:is(.pin-selected,.pin-manual)>span {--pin-color:#17e600;color:#15420e;transform-origin:center bottom;animation:active-pin-breathe 1.5s ease-in-out infinite}
+:is(.pin-selected,.pin-manual)>span::before {filter:drop-shadow(0 0 5px #52ff38)}
+:is(.pin-selected,.pin-manual)>span::after {border-color:#52ff38;animation:pin-ring 1.5s ease-out infinite}
 @keyframes active-pin-breathe {0%,100%{transform:scale(1.12)}50%{transform:scale(1.27)}}
 @media(prefers-reduced-motion:reduce) {
-  .pin-selected>span {animation:none;transform:scale(1.17)}
-  .pin-selected>span::after {animation:none;opacity:0}
+  :is(.pin-selected,.pin-manual)>span {animation:none;transform:scale(1.17)}
+  :is(.pin-selected,.pin-manual)>span::after {animation:none;opacity:0}
 }
 
 :root {
@@ -452,6 +452,3 @@ main.map-overview aside {display:none}
   from {opacity:.72;transform:translateY(3px)}
   to {opacity:1;transform:translateY(0)}
 }
-
-.pin-manual>span {--pin-color:#17e600;color:#15420e}
-.pin-manual>span::before {filter:drop-shadow(0 0 4px #52ff38)}
