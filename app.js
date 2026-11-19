@@ -6,6 +6,7 @@ const search = byId('search');
 const browse = byId('browse');
 const detailBody = byId('detail-body');
 const located = photos.filter(photo => photo.position.length);
+const bambooSurvey = rows.find(row => row[0] === 1);
 const insulatorSurvey = rows.find(row => row[0] === 2);
 const estimatedTime = row => row?.[5]?.replace('ชั่งโมง', 'ชั่วโมง');
 const vehicleAccess = row => ({
@@ -219,6 +220,7 @@ const polePhoto = photos.find(photo => photo.file === 'photos/50.jpg');
 const insulatorPhoto = photos.find(photo => photo.file === 'photos/49.jpg');
 const isRecloserPole = photo => photo === polePhoto || photo === insulatorPhoto;
 const photoPosition = photo => photo === insulatorPhoto ? polePhoto.position : photo.position;
+const photoCaption = photo => photo.filename.replace(/\.jpg$/i, '');
 const coordinates = photo => photoPosition(photo).map(value => value.toFixed(6)).join(', ');
 const mapsLink = photo => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(coordinates(photo));
 function stepPhoto(offset) {
@@ -242,19 +244,20 @@ function photoDetail(photo, zoom = true) {
   const image = node('img');
   image.src = photo.file;
   image.alt = 'ภาพลาดตระเวนที่ ' + photo.id;
-  detailBody.replaceChildren(node('h2', 'รูปที่ ' + photo.id), image,
+  detailBody.replaceChildren(node('h2', photoCaption(photo)), image,
     node('p', position.length ? coordinates(photo) : 'รูปนี้ไม่มีพิกัดกำกับ'));
   if (isRecloserPole(photo)) {
     const isInsert = photo === insulatorPhoto;
-    detailBody.append(node('h3', 'จุดที่ 1 · ต้นหลังรีโคลสเซอร์'),
-      node('p', 'สิ่งที่ตรวจพบ: ลูกถ้วยก้านตรงรั่ว (Leak)'),
-      node('p', isInsert ? 'ภาพแทรกแสดงลูกถ้วย ใช้พิกัดเดียวกับรูปที่ 1' : 'รูปที่ 2 เป็นภาพแทรกของลูกถ้วยที่จุดนี้'));
+    const survey = isInsert ? insulatorSurvey : bambooSurvey;
+    detailBody.append(node('h3', 'จุดที่ 1 · ต้นแรกหลังรีโคลสเซอร์'),
+      node('p', isInsert ? 'สิ่งที่ตรวจพบ: ลูกถ้วยก้านตรงรั่ว (Leak) เฟส C' : 'สิ่งที่ตรวจพบ: กอไผ่ 1 กอ'),
+      node('p', isInsert ? 'ภาพแทรกแสดงลูกถ้วย ใช้พิกัดเดียวกับภาพ 1.1' : 'ภาพ 1.2 เป็นภาพแทรกของลูกถ้วยที่จุดนี้'));
     appendSurveyFields([
-      ['เวลาประมาณการต่อเหตุ', estimatedTime(insulatorSurvey)],
-      ['การเข้าถึงหน้างาน', vehicleAccess(insulatorSurvey)],
-      ['หมายเหตุ', insulatorSurvey?.[6]]
+      ['เวลาประมาณการต่อเหตุ', estimatedTime(survey)],
+      ['การเข้าถึงหน้างาน', vehicleAccess(survey)],
+      ['หมายเหตุ', survey?.[6]]
     ]);
-    const related = node('button', isInsert ? 'กลับไปดูรูปที่ 1' : 'ดูภาพแทรกลูกถ้วย (รูปที่ 2)');
+    const related = node('button', isInsert ? 'กลับไปดูภาพ 1.1' : 'ดูภาพแทรกลูกถ้วย (1.2)');
     related.onclick = () => {
       photoDetail(isInsert ? polePhoto : insulatorPhoto);
       byId('next-photo').focus();
@@ -272,7 +275,7 @@ function photoDetail(photo, zoom = true) {
     link.rel = 'noopener';
     detailBody.append(link);
   }
-  detailBody.append(node('p', photo.source));
+  detailBody.append(node('p', photo.filename));
   highlightPin();
 }
 function appendSurveyFields(fields) {
@@ -310,7 +313,7 @@ function render() {
   const query = search.value.trim().toLowerCase();
   const isPhoto = mode === 'photos';
   const items = (isPhoto ? photos : rows).filter(item => {
-    const value = isPhoto ? ['รูปที่ ' + item.id, coordinates(item), item.source, isRecloserPole(item) ? 'ต้นหลังรีโคลสเซอร์ ลูกถ้วยรั่ว Leak' : (item.position.length ? '' : 'ไม่มีพิกัด')] : item;
+    const value = isPhoto ? ['รูปที่ ' + item.id, coordinates(item), item.filename, item.source, isRecloserPole(item) ? 'ต้นหลังรีโคลสเซอร์ ลูกถ้วยรั่ว Leak' : (item.position.length ? '' : 'ไม่มีพิกัด')] : item;
     return value.join(' ').toLowerCase().includes(query);
   });
   byId('summary').textContent = isPhoto
@@ -319,7 +322,7 @@ function render() {
   byId('results').replaceChildren(...items.map(item => {
     const card = node('button');
     card.className = 'entry';
-    const text = node('span', isPhoto ? 'รูปที่ ' + item.id : item[0] + ' · ' + item[2]);
+    const text = node('span', isPhoto ? photoCaption(item) : item[0] + ' · ' + item[2]);
     text.append(node('small', isPhoto ? (item === insulatorPhoto ? 'ภาพแทรกของจุดที่ 1 · ' + coordinates(item) : coordinates(item) || 'ไม่มีพิกัด') : [item[1], estimatedTime(item), vehicleAccess(item)].filter(Boolean).join(' · ')));
     if (isPhoto) {
       const image = node('img');
