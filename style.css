@@ -243,8 +243,18 @@ header h1 {font-weight:750}
 :root {
   --gmd-gradient:linear-gradient(112deg,#eee5ff 0%,#e7f2ff 52%,#dff7ef 100%);
 }
-body,header,aside {background:var(--gmd-gradient)}
-header {color:#30234c;border-left:0;border-bottom:1px solid #cdc9e4}
+body,aside {background:var(--gmd-gradient)}
+header {
+  background:linear-gradient(90deg,#102754 0%,#fff 50%,#662983 100%);
+  color:#30234c;
+  border-left:0;
+  border-bottom:1px solid #cdc9e4;
+}
+header .site-title {
+  background:#fffffff0;
+  border-radius:5px;
+  padding:.15em .35em;
+}
 .site-title span {color:#473164;background:#ffffffa6}
 .work-summary {background:#cdd6e7;border-bottom:1px solid #cdd6e7}
 .work-summary div {background:#f7f7ff}
