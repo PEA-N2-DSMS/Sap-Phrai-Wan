@@ -22,7 +22,7 @@ button {background:white;color:var(--purple-dark);cursor:pointer}
 button:hover:not(:disabled) {background:#faf0fc}
 button:focus-visible,a:focus-visible,summary:focus-visible {outline:3px solid #b36f00;outline-offset:2px}
 button:disabled {opacity:.45;cursor:default}
-#fit {margin-left:auto;white-space:nowrap;background:var(--yellow);border-color:transparent;font-weight:700}
+#fit {white-space:nowrap;background:var(--yellow);border-color:transparent;font-weight:700}
 main {display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);flex:1;min-height:0}
 #map {background:#263d36;min-height:0}
 #map-status {padding:16px;color:white}
@@ -245,10 +245,18 @@ header h1 {font-weight:750}
 }
 body,aside {background:var(--gmd-gradient)}
 header {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
   background:linear-gradient(90deg,#102754 0%,#fff 50%,#662983 100%);
   color:#30234c;
   border-left:0;
   border-bottom:1px solid #cdc9e4;
+}
+.header-brand {
+  display:flex;
+  align-items:center;
+  gap:inherit;
+  min-width:0;
 }
 header .site-title {
   background:#fffffff0;
@@ -266,6 +274,7 @@ main.map-overview {grid-template-columns:minmax(0,1fr);grid-template-rows:minmax
 main.map-overview aside {display:none}
 
 #circuit {
+  justify-self:end;
   max-width: 100%;
   padding: .35em .45em;
   border: 1px solid #cdc9e4;
