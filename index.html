@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>แผนที่ลาดตระเวน | ทรัพย์ไพรวัลย์</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="style.css?v=survey-filenames">
+<link rel="stylesheet" href="style.css?v=slide-layout">
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script defer src="data.js?v=survey-filenames"></script>
-<script defer src="app.js?v=survey-filenames"></script>
+<script defer src="app.js?v=slide-layout"></script>
 </head>
 <body>
 <header><div class="symbol" aria-hidden="true">⌖</div><div><h1>แผนที่ลาดตระเวนทรัพย์ไพรวัลย์</h1><p>WGT03VR-105 · ฟีดเดอร์ 3</p></div><button id="fit">ดูทุกหมุด</button></header>
@@ -33,5 +33,9 @@
   </details>
  </aside>
 </main>
+<dialog id="photo-info" aria-label="รายละเอียดภาพสำรวจ">
+ <form method="dialog"><button aria-label="ปิดรายละเอียด">ปิด</button></form>
+ <div id="photo-info-body"></div>
+</dialog>
 </body>
 </html>
