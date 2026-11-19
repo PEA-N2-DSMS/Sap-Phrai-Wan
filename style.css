@@ -1,23 +1,22 @@
 :root {
   color-scheme: light;
-  --purple:#76548e;
-  --pastel:#eee4f6;
-  --blush:#f8e9f1;
-  --purple-dark:#4d355e;
-  --lavender:#f8f4fa;
+  --purple:#581858;
+  --pastel:#dee3ff;
+  --purple-dark:#400848;
+  --lavender:#f4f5ff;
   --ink:#3c3046;
   --muted:#65586d;
   --line:#e4d9ec;
-  --yellow:#f9e5ae;
+  --yellow:#f9ce8a;
   font:16px system-ui,sans-serif;
 }
 * {box-sizing:border-box}
 body {margin:0;display:flex;flex-direction:column;height:100dvh;background:var(--lavender);color:var(--ink)}
 h1,h2,h3,p {margin:0}
-header {display:flex;align-items:center;gap:14px;padding:14px 24px;background:linear-gradient(115deg,var(--pastel),var(--blush));color:var(--purple-dark);border-bottom:1px solid var(--line)}
+header {display:flex;align-items:center;gap:14px;padding:14px 24px;background:linear-gradient(112deg,var(--purple-dark),var(--purple) 65%,#8c3088);color:white;border-bottom:3px solid var(--yellow)}
 header h1 {font-size:clamp(1rem,2vw,1.35rem)}
-header p {margin-top:4px;font-size:.875rem;color:var(--muted)}
-.symbol {display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#fffb;color:var(--purple);font-size:1.7rem}
+header p {margin-top:4px;font-size:.875rem;color:#f0ddec}
+.symbol {display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:#ffffff22;color:var(--yellow);font-size:1.7rem}
 button,input {font:inherit;border:1px solid var(--line);border-radius:9px;padding:8px 12px}
 button {background:white;color:var(--purple-dark);cursor:pointer}
 button:hover:not(:disabled) {background:#faf0fc}
@@ -55,12 +54,39 @@ aside {min-width:0;overflow:auto;padding:16px 20px;border-left:1px solid var(--l
 .pin b {transform:rotate(45deg);font:700 11px system-ui,sans-serif}
 .pin-selected>span {background:#167b44;border-color:#e3ffe9;box-shadow:0 0 0 2px #125332,0 2px 5px #0009}
 .sr {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+
+html,body {overflow:hidden;overscroll-behavior:none}
+header {flex:none}
+main {grid-template-rows:minmax(0,1fr)}
+aside {position:relative;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:8px;overflow:hidden;min-height:0;padding:10px 12px;background:var(--pastel)}
+#detail {display:flex;flex-direction:column;min-height:0}
+#photo-navigation {flex:none}
+#detail-body {flex:1;min-height:0;overflow:auto}
+#detail-body.photo-view {display:grid;grid-template-rows:auto minmax(0,1fr) auto;align-items:start;gap:7px;overflow:hidden;padding:10px}
+#detail-body.photo-view img {width:100%;height:100%;min-height:0;margin:0;object-fit:contain;background:var(--lavender)}
+.photo-actions {display:flex;align-items:center;flex-wrap:wrap;gap:5px 8px;font-size:.82rem}
+.photo-actions button {margin:0!important;padding:5px 8px}
+.photo-actions span {color:var(--muted)}
+#browse {margin:0;background:#fff}
+#browse summary {padding:7px 12px}
+.browse-content {position:absolute;z-index:2;bottom:46px;left:12px;right:12px;max-height:calc(100% - 50px);overflow:auto;padding:12px;border:1px solid var(--line);border-radius:12px;background:white;box-shadow:0 6px 24px #40084830}
+#results {max-height:min(30dvh,260px)}
+#photo-info {width:min(520px,92vw);max-height:85dvh;padding:16px;border:1px solid var(--line);border-radius:14px;color:var(--ink)}
+#photo-info::backdrop {background:#28123088}
+#photo-info form {display:flex;justify-content:flex-end}
+#photo-info-body h2 {font-size:1.1rem}
+#photo-info-body h3,#photo-info-body p,#photo-info-body a {margin-top:8px}
+#photo-info-body a {display:inline-block;color:var(--purple)}
 @media(max-width:700px) {
-  body {height:auto;min-height:100dvh}
-  header {padding:10px 12px}
+  header {padding:6px 9px;gap:8px}
+  header p {font-size:.75rem}
   .symbol {display:none}
-  main {display:block}
-  #map {height:44dvh;min-height:220px}
-  aside {border-left:0;padding:10px}
-  #detail-body img {height:clamp(220px,38dvh,420px)}
+  #fit {padding:5px 8px;font-size:.8rem}
+  main {grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,4fr) minmax(0,6fr)}
+  aside {border-left:0;padding:5px 7px;gap:4px}
+  #photo-navigation:not([hidden]) {padding:4px 7px}
+  #photo-navigation button,#browse summary {font-size:.8rem;padding:4px 7px}
+  #detail-body.photo-view {padding:5px 7px;gap:4px}
+  #detail-body h2 {font-size:.9rem;line-height:1.2}
+  .browse-content {bottom:33px;left:7px;right:7px;max-height:calc(100% - 36px)}
 }
