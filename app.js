@@ -14,7 +14,25 @@ circuit.addEventListener('change', () => {
   window.location.assign(circuitUrl);
 });
 const photos = isSurveyCircuit ? wgt03vr04 : patrolData.photos;
-const rows = isSurveyCircuit ? [] : patrolData.rows;
+const rows = isSurveyCircuit ? [] : patrolData.rows.map(row => [...row]);
+const editStorageKey = 'pea-survey-edits:' + circuit.value;
+let edits = {};
+try {
+  edits = JSON.parse(localStorage.getItem(editStorageKey)) ?? {};
+} catch {
+  // The survey remains viewable when browser storage is unavailable.
+}
+const descriptions = edits.descriptions ?? {};
+const jobEdits = edits.jobs ?? {};
+const applyJobEdit = row => {
+  const edit = jobEdits[row[0]];
+  if (edit) {
+    row[3] = edit.access;
+    row[5] = edit.time;
+  }
+  return row;
+};
+rows.forEach(applyJobEdit);
 const detailBody = byId('detail-body');
 const dashboard = byId('dashboard');
 const totalMinutes = jobs => jobs.reduce((total, row) => {
@@ -23,7 +41,6 @@ const totalMinutes = jobs => jobs.reduce((total, row) => {
   const minutes = Number(estimate.match(/(\d+)\s*นาที/)?.[1] ?? 0);
   return total + hours * 60 + minutes;
 }, 0);
-const manualJobs = rows.filter(row => row[3] === 'เข้าไม่ถึง');
 // Excel job numbers in photo-ID order. A job recorded in several photos contributes once to the total.
 const jobNumbersByPhoto = [
   1, 2, 3, 4, 4, 5, 7, 9, 10, 11,
@@ -33,9 +50,9 @@ const jobNumbersByPhoto = [
   41, 42, 43, 44, 44, 44, 44, 45
 ];
 const jobsByPhoto = new Map(photos.map(photo => [
-  photo.id, rows.find(row => row[0] === jobNumbersByPhoto[photo.id - 1])
+  photo.id, isSurveyCircuit ? applyJobEdit([photo.id]) : rows.find(row => row[0] === jobNumbersByPhoto[photo.id - 1])
 ]));
-const manualJobsByPhoto = new Map([...jobsByPhoto].filter(([, job]) => job?.[3] === 'เข้าไม่ถึง'));
+const isManualPhoto = photo => jobsByPhoto.get(photo.id)?.[3] === 'เข้าไม่ถึง';
 const photoCountByJob = new Map();
 for (const job of jobsByPhoto.values()) {
   if (job) photoCountByJob.set(job[0], (photoCountByJob.get(job[0]) ?? 0) + 1);
@@ -104,10 +121,11 @@ if (isSurveyCircuit) {
 let visibleGroups = photoGroups;
 let visiblePins = located;
 function setWorkFilter(onlyManual) {
+  const manualJobs = rows.filter(row => row[3] === 'เข้าไม่ถึง');
   const jobs = onlyManual ? manualJobs : rows;
   const minutes = totalMinutes(jobs);
-  visibleGroups = onlyManual ? photoGroups.filter(group => group.some(photo => manualJobsByPhoto.has(photo.id))) : photoGroups;
-  visiblePins = onlyManual ? located.filter(photo => manualJobsByPhoto.has(photo.id)) : located;
+  visibleGroups = onlyManual ? photoGroups.filter(group => group.some(isManualPhoto)) : photoGroups;
+  visiblePins = onlyManual ? located.filter(isManualPhoto) : located;
   byId('job-total').textContent = isSurveyCircuit ? photos.length + ' รายการ' : jobs.length + ' งาน';
   byId('time-total').textContent = isSurveyCircuit
     ? located.length + ' หมุด'
@@ -130,6 +148,69 @@ function stepPhoto(offset) {
   if (index >= 0 && next) photoDetail(next[0]);
 }
 
+function photoDescription(photo) {
+  if (Object.hasOwn(descriptions, photo.id)) return descriptions[photo.id];
+  if (isSurveyCircuit) return photo.description;
+  if (isRecloserPole(photo)) {
+    return photo === insulatorPhoto
+      ? 'ลูกถ้วยก้านตรงรั่ว (Leak) · เฟส C'
+      : 'กอไผ่ 1 กอ · ต้นแรกหลังรีโคลสเซอร์';
+  }
+  const filename = photo.filename.replace(/\.jpg$/i, '').replace(/^จุดที่\s+\d+(?:\.\d+)*\s*/, '').trim();
+  return [filename, photo.description].filter(Boolean).join(' · ');
+}
+
+const editor = byId('photo-editor');
+const editDescription = byId('edit-description');
+const editMinutes = byId('edit-minutes');
+const editAccess = byId('edit-access');
+let editingPhoto;
+
+function openPhotoEditor(photo) {
+  const job = jobsByPhoto.get(photo.id);
+  editingPhoto = photo;
+  byId('editor-heading').textContent = 'แก้ไข ' + photoCaption(photo);
+  editDescription.value = photoDescription(photo);
+  editMinutes.value = job[5] ? totalMinutes([job]) : '';
+  editAccess.value = job[3] ?? '';
+  const count = photoCountByJob.get(job[0]);
+  byId('editor-shared').textContent = count > 1 ? 'เวลาและสถานะรถใช้ร่วมกัน ' + count + ' รูปในงานนี้' : '';
+  byId('editor-error').textContent = '';
+  editor.showModal();
+}
+
+byId('cancel-edit').onclick = () => editor.close();
+byId('edit-form').onsubmit = event => {
+  event.preventDefault();
+  const job = jobsByPhoto.get(editingPhoto.id);
+  const minutes = editMinutes.valueAsNumber;
+  const time = Number.isNaN(minutes) ? '' : minutes >= 60
+    ? Math.floor(minutes / 60) + ' ชั่วโมง ' + (minutes % 60) + ' นาที'
+    : minutes + ' นาที';
+  const description = editDescription.value.trim();
+  const edit = {time, access: editAccess.value};
+  try {
+    localStorage.setItem(editStorageKey, JSON.stringify({
+      descriptions: {...descriptions, [editingPhoto.id]: description},
+      jobs: {...jobEdits, [job[0]]: edit}
+    }));
+  } catch {
+    byId('editor-error').textContent = 'บันทึกไม่ได้ กรุณาตรวจสอบการตั้งค่าพื้นที่จัดเก็บของเบราว์เซอร์';
+    return;
+  }
+  descriptions[editingPhoto.id] = description;
+  jobEdits[job[0]] = edit;
+  applyJobEdit(job);
+  editor.close();
+  const photo = activePhoto;
+  const onlyManual = byId('manual-total').getAttribute('aria-pressed') === 'true';
+  setWorkFilter(onlyManual);
+  if (visibleGroups.some(group => group.includes(photo))) {
+    photoDetail(photo);
+    detailBody.querySelector('[aria-label="แก้ไข ' + photoCaption(editingPhoto) + '"]')?.focus();
+  }
+};
+
 function photoHeading(photo, description) {
   const heading = node('h2', photoCaption(photo));
   heading.className = 'photo-heading';
@@ -141,7 +222,7 @@ function appendWorkDetails(info, row) {
   const text = [workTimeLabel(row), vehicleAccess(row)].filter(Boolean).join(' · ');
   const details = node('p', text);
   details.className = 'work-details';
-  info.append(details);
+  info.prepend(details);
 }
 
 function createPhotoCard(photo) {
@@ -149,6 +230,12 @@ function createPhotoCard(photo) {
   card.className = 'survey-photo';
   const info = node('div');
   info.className = 'survey-photo-info';
+  const edit = node('button', 'แก้ไข');
+  edit.type = 'button';
+  edit.className = 'edit-photo';
+  edit.setAttribute('aria-label', 'แก้ไข ' + photoCaption(photo));
+  edit.onclick = () => openPhotoEditor(photo);
+  info.append(edit);
   if (isSurveyCircuit) {
     const images = node('div');
     images.className = 'record-images';
@@ -160,27 +247,19 @@ function createPhotoCard(photo) {
     }
     if (!photo.images.length) images.append(node('p', 'ไม่พบไฟล์ภาพใน ZIP'));
     appendWorkDetails(info, jobsByPhoto.get(photo.id));
-    card.append(photoHeading(photo, photo.description), images, info);
+    card.append(photoHeading(photo, photoDescription(photo)), images, info);
     card.classList.add('survey-record');
     return card;
   }
   const image = node('img');
   image.src = photo.file;
   image.alt = photoCaption(photo);
-  const filenameDescription = photo.filename
-    .replace(/\.jpg$/i, '')
-    .replace(/^จุดที่\s+\d+(?:\.\d+)*\s*/, '')
-    .trim();
-  const manualJob = manualJobsByPhoto.get(photo.id);
-  let description = [filenameDescription, photo.description].filter(Boolean).join(' · ');
-  if (manualJob) {
-    info.append(node('p', 'งานที่ ' + manualJob[0] + ' · ' + [manualJob[2],manualJob[6]].filter(Boolean).join(' · ')));
-  } else if (isRecloserPole(photo)) {
-    const isInsert = photo === insulatorPhoto;
-    description = isInsert ? 'ลูกถ้วยก้านตรงรั่ว (Leak) · เฟส C' : 'กอไผ่ 1 กอ · ต้นแรกหลังรีโคลสเซอร์';
+  const job = jobsByPhoto.get(photo.id);
+  if (isManualPhoto(photo)) {
+    info.append(node('p', 'งานที่ ' + job[0] + ' · ' + [job[2], job[6]].filter(Boolean).join(' · ')));
   }
   appendWorkDetails(info, jobsByPhoto.get(photo.id));
-  card.append(photoHeading(photo, description), image, info);
+  card.append(photoHeading(photo, photoDescription(photo)), image, info);
   return card;
 }
 
@@ -275,7 +354,7 @@ byId('manual-total').onclick = () => setWorkFilter(true);
 byId('previous-photo').onclick = () => stepPhoto(-1);
 byId('next-photo').onclick = () => stepPhoto(1);
 document.addEventListener('keydown', event => {
-  if (!activePhoto || event.altKey || event.ctrlKey || event.metaKey ||
+  if (editor.open || !activePhoto || event.altKey || event.ctrlKey || event.metaKey ||
       event.target.closest('input, textarea, select, [contenteditable]') ||
       !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
   event.preventDefault();

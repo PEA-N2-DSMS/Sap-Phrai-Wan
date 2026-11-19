@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PEA WGT03VR-105</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="style.css?v=active-green-pin">
+<link rel="stylesheet" href="style.css?v=photo-editor">
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script defer src="data.js?v=survey-copy"></script>
 <script defer src="wgt03vr-04.js?v=100-records"></script>
-<script defer src="app.js?v=all-work-times"></script>
+<script defer src="app.js?v=photo-editor"></script>
 </head>
 <body>
 <header>
@@ -44,6 +44,27 @@
   </section>
  </aside>
 </main>
+<dialog id="photo-editor" aria-labelledby="editor-heading">
+ <form id="edit-form">
+  <h2 id="editor-heading"></h2>
+  <label>คำอธิบายรูป<textarea id="edit-description" rows="3" maxlength="500"></textarea></label>
+  <label>ประมาณเวลาทำงาน (นาที)<input id="edit-minutes" type="number" min="0" max="1000000" step="1"></label>
+  <label>สถานะรถเข้าถึง
+   <select id="edit-access">
+    <option value="">ไม่มีข้อมูล</option>
+    <option value="เข้าถึง">รถเข้าถึงได้</option>
+    <option value="เข้าไม่ถึง">รถเข้าไม่ถึง</option>
+   </select>
+  </label>
+  <p id="editor-shared"></p>
+  <p>บันทึกเฉพาะในเบราว์เซอร์นี้</p>
+  <p id="editor-error" role="alert"></p>
+  <div class="editor-actions">
+   <button id="cancel-edit" type="button">ยกเลิก</button>
+   <button type="submit">บันทึก</button>
+  </div>
+ </form>
+</dialog>
 <footer class="energy-footer" lang="en">
  <div class="energy-caption">
   <strong>SMART ENERGY</strong>

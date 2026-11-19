@@ -362,3 +362,33 @@ main.map-overview aside {display:none}
   border-radius:6px;
   background:#58185808;
 }
+
+#detail-body .edit-photo {
+  display:block;
+  margin:.3rem 0 0 auto;
+  padding:.2em .65em;
+  font-size:.85rem;
+}
+#photo-editor {
+  width:min(25rem,calc(100% - 1.5rem));
+  max-height:calc(100dvh - 2rem);
+  padding:1rem;
+  border:1px solid var(--line);
+  border-radius:12px;
+  color:var(--ink);
+}
+#photo-editor::backdrop {background:#25112e80}
+#edit-form,#edit-form label {display:grid;gap:.35rem}
+#edit-form {gap:.65rem}
+#edit-form :is(input,textarea,select) {
+  min-width:0;
+  padding:.45rem;
+  border:1px solid #cbc0d0;
+  border-radius:6px;
+  font:inherit;
+}
+#edit-form p {font-size:.85rem}
+#edit-form p:empty {display:none}
+#editor-error {color:#a31d31}
+.editor-actions {display:flex;justify-content:flex-end;gap:.5rem}
+.editor-actions button[type=submit] {background:#581858;color:#fff}
