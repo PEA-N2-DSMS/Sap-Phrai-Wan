@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Patrolling WGT03VR-105</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="style.css?v=presentation-type">
+<link rel="stylesheet" href="style.css?v=active-pin-jobs">
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script defer src="data.js?v=survey-filenames"></script>
-<script defer src="app.js?v=presentation-type"></script>
+<script defer src="app.js?v=active-pin-jobs"></script>
 </head>
 <body>
 <header>
@@ -19,7 +19,7 @@
 <dl class="work-summary" aria-label="สรุปงานจากแบบฟอร์มสำรวจ">
  <div><dt>งานที่ต้องแก้ไข</dt><dd id="job-total"></dd></div>
  <div><dt>เวลาประมาณการรวม</dt><dd id="time-total"></dd></div>
- <div class="manual-jobs"><dt>รถเข้าไม่ถึง · ใช้กำลังคน</dt><dd id="manual-total"></dd></div>
+ <div class="manual-jobs"><dt>รถเข้าไม่ถึง · ใช้กำลังคน</dt><dd><button id="manual-total" type="button" aria-haspopup="dialog" aria-controls="manual-jobs-dialog"></button></dd></div>
 </dl>
 <main>
  <section id="map" aria-label="แผนที่ภาพดาวเทียม"><p id="map-status" role="status">กำลังโหลดแผนที่ภาพดาวเทียม</p></section>
@@ -41,5 +41,10 @@
  </div>
  <div class="energy-gold" aria-hidden="true"></div>
 </footer>
+<dialog id="manual-jobs-dialog" aria-labelledby="manual-jobs-title">
+ <form method="dialog"><button autofocus>ปิด</button></form>
+ <h2 id="manual-jobs-title">งานที่รถเข้าไม่ถึง</h2>
+ <ul id="manual-jobs-list"></ul>
+</dialog>
 </body>
 </html>
