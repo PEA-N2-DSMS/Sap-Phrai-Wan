@@ -388,3 +388,22 @@ if (window.L) {
   byId('map-status').textContent = 'โหลดแผนที่ไม่สำเร็จ กรุณาตรวจการเชื่อมต่อแล้วโหลดหน้าใหม่';
 }
 showOverview(false);
+
+const welcomeTip = byId('welcome-tip');
+const welcomeKey = 'pea-survey-welcome-seen';
+let welcomeSeen = false;
+try {
+  welcomeSeen = sessionStorage.getItem(welcomeKey) === '1';
+} catch {
+  // The tip is still available when session storage is blocked.
+}
+if (!welcomeSeen) {
+  welcomeTip.addEventListener('close', () => {
+    try {
+      sessionStorage.setItem(welcomeKey, '1');
+    } catch {
+      // The tip can be dismissed without browser storage.
+    }
+  }, {once: true});
+  welcomeTip.showModal();
+}
