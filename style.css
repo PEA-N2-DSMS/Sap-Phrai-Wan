@@ -114,3 +114,75 @@ aside {position:relative;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:
   .survey-gallery {gap:5px}
   .survey-photo-info,.survey-location {font-size:.72rem}
 }
+
+:root {
+  --purple:#741369;
+  --purple-dark:#490f4e;
+  --pastel:#dce2fa;
+  --lavender:#f3f5ff;
+  --yellow:#f9ce8a;
+}
+header {
+  background:#fff;
+  color:var(--purple-dark);
+  border-bottom:2px solid var(--pastel);
+  padding:8px 22px;
+}
+header p {color:var(--muted)}
+.pea-logo {
+  width:112px;
+  height:44px;
+  border:0;
+  border-radius:0;
+}
+.energy-footer {
+  flex:none;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  align-items:stretch;
+  gap:6px;
+  height:53px;
+  overflow:hidden;
+  background:white;
+}
+.energy-caption,.energy-gold {
+  position:relative;
+  overflow:hidden;
+}
+.energy-caption {
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:4px 26px;
+  color:white;
+  line-height:1.1;
+  background:linear-gradient(105deg,#461446,#8b287f 78%,#9c3490);
+  clip-path:polygon(0 0,100% 0,calc(100% - 45px) 100%,0 100%);
+}
+.energy-gold {
+  background:linear-gradient(100deg,#f9ce8a 18%,#d8a344);
+  clip-path:polygon(45px 0,100% 0,100% 100%,0 100%);
+  margin-left:-45px;
+}
+.energy-caption::before,.energy-gold::before {
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:radial-gradient(circle,#fff8 1px,transparent 1.5px),radial-gradient(circle,#fff5 1px,transparent 1.6px);
+  background-size:19px 13px,31px 21px;
+  background-position:0 0,5px 7px;
+  opacity:.47;
+  pointer-events:none;
+}
+.energy-caption strong,.energy-caption span {position:relative}
+.energy-caption strong {font-size:1.1rem;font-style:italic;font-weight:850}
+.energy-caption span {font-size:.68rem;font-weight:700;margin-top:3px}
+@media(max-width:700px) {
+  header {padding:5px 8px;gap:6px}
+  .pea-logo {width:65px;height:27px}
+  .energy-footer {height:35px;grid-template-columns:minmax(0,3fr) minmax(0,1fr)}
+  .energy-caption {padding:2px 10px;clip-path:polygon(0 0,100% 0,calc(100% - 24px) 100%,0 100%)}
+  .energy-gold {margin-left:-24px;clip-path:polygon(24px 0,100% 0,100% 100%,0 100%)}
+  .energy-caption strong {font-size:.8rem}
+  .energy-caption span {font-size:.55rem;margin-top:1px}
+}
