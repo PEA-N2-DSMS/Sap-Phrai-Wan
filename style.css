@@ -23,7 +23,7 @@ button:hover:not(:disabled) {background:#faf0fc}
 button:focus-visible,a:focus-visible,summary:focus-visible {outline:3px solid #b36f00;outline-offset:2px}
 button:disabled {opacity:.45;cursor:default}
 #fit {margin-left:auto;white-space:nowrap;background:var(--yellow);border-color:transparent;font-weight:700}
-main {display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);flex:1;min-height:0}
+main {display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);flex:1;min-height:0}
 #map {background:#263d36;min-height:0}
 #map-status {padding:16px;color:white}
 aside {min-width:0;overflow:auto;padding:16px 20px;border-left:1px solid var(--line)}
