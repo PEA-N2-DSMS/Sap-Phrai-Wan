@@ -50,7 +50,14 @@ const photoCaption = photo => isSurveyCircuit
   ? 'รายการที่ ' + photo.id
   : 'รูปที่ ' + photo.id;
 const coordinates = photo => photoPosition(photo).map(value => value.toFixed(6)).join(', ');
-const mapsLink = photo => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(coordinates(photo));
+const streetViewLink = photo => {
+  const params = new URLSearchParams({
+    api: '1',
+    map_action: 'pano',
+    viewpoint: photoPosition(photo).join(',')
+  });
+  return 'https://www.google.com/maps/@?' + params;
+};
 const photoGroups = [];
 for (const photo of photos) {
   const position = photoPosition(photo);
@@ -180,10 +187,18 @@ function photoDetail(photo) {
   gallery.append(...group.map(createPhotoCard));
   const location = node('div');
   location.className = 'survey-location';
-  location.append(node('span', position.length ? coordinates(photo) : 'รูปนี้ไม่มีพิกัดกำกับ'));
   if (position.length) {
-    const link = node('a', 'เปิดใน Google Maps');
-    link.href = mapsLink(photo);
+    const coordinateLabel = node('span', 'พิกัด');
+    coordinateLabel.className = 'coordinate-label';
+    const coordinateValue = node('strong', coordinates(photo));
+    coordinateValue.className = 'coordinate-value';
+    location.append(coordinateLabel, coordinateValue);
+  } else {
+    location.append(node('span', 'รูปนี้ไม่มีพิกัดกำกับ'));
+  }
+  if (position.length) {
+    const link = node('a', 'เปิด Google Street View');
+    link.href = streetViewLink(photo);
     link.target = '_blank';
     link.rel = 'noopener';
     location.append(link);

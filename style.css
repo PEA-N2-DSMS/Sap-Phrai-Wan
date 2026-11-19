@@ -325,3 +325,27 @@ main.map-overview aside {display:none}
   font-size:clamp(1rem,1.2vw,1.15rem);
   line-height:1.45;
 }
+
+.survey-location {
+  gap:.35rem .65rem;
+  padding:.45rem .65rem;
+  border:1px solid #dfc98e;
+  border-radius:8px;
+  background:#fff8e7;
+}
+.coordinate-label {color:#5d3860;font-weight:700}
+.coordinate-value {
+  color:#461446;
+  font-size:clamp(1rem,1.45vw,1.25rem);
+  font-variant-numeric:tabular-nums;
+}
+#detail-body .survey-location a {
+  margin-inline-start:auto;
+  padding:.35em .65em;
+  border-radius:6px;
+  background:#581858;
+  color:#fff;
+  font-weight:700;
+  text-decoration:none;
+}
+#detail-body .survey-location a:hover {background:#400848}
