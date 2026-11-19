@@ -207,12 +207,6 @@ header h1 {font-size:clamp(1.12rem,1.55vw,1.65rem);line-height:1.2;overflow-wrap
   .pin-selected>span,.pin-selected>span::after {animation:none}
 }
 #manual-total {font:inherit;font-weight:inherit;background:#fff;color:var(--purple-dark);border-color:#b87d28;padding:.12em .55em;text-decoration:underline;text-underline-offset:.14em}
-#manual-jobs-dialog {width:min(590px,calc(100% - 32px));max-height:85dvh;overflow:auto;padding:18px 22px;border:1px solid var(--line);border-radius:14px;color:var(--ink)}
-#manual-jobs-dialog::backdrop {background:#23112b99}
-#manual-jobs-dialog form {display:flex;justify-content:flex-end}
-#manual-jobs-list {list-style:none;margin:12px 0 0;padding:0;display:grid;gap:7px}
-#manual-jobs-list li {display:grid;gap:4px;background:var(--lavender);padding:9px 12px;border-radius:8px}
-#manual-jobs-list span {color:var(--muted)}
 
 header {
   background:#fff;
@@ -233,3 +227,15 @@ header h1 {font-weight:750}
 .pea-logo {border-radius:50%;border:1px solid #e5c980}
 #fit {background:var(--purple);color:#fff}
 #fit:hover:not(:disabled) {background:var(--purple-dark)}
+
+#fit {background:#ffd36c;color:#401746;box-shadow:0 0 0 2px #e9b84155}
+#fit:hover:not(:disabled) {background:#ffdf91;color:#401746}
+#manual-total[aria-pressed=true] {background:#fff0a2;border-color:#9d6c11}
+.pin-selected>span {--pin-color:#dbff36;color:#304300;transform-origin:center bottom;animation:active-pin-breathe 1.5s ease-in-out infinite}
+.pin-selected>span::before {filter:drop-shadow(0 0 5px #e0ff5b)}
+.pin-selected>span::after {border-color:#e5ff74;animation:pin-ring 1.5s ease-out infinite}
+@keyframes active-pin-breathe {0%,100%{transform:scale(1.12)}50%{transform:scale(1.27)}}
+@media(prefers-reduced-motion:reduce) {
+  .pin-selected>span {animation:none;transform:scale(1.17)}
+  .pin-selected>span::after {animation:none;opacity:0}
+}
