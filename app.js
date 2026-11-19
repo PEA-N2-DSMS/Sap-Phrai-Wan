@@ -1,8 +1,22 @@
-const {photos, rows} = patrolData;
 const byId = id => document.getElementById(id);
+const surveyCircuit = 'WGT03VR-04';
+const circuitUrl = new URL(window.location.href);
+const isSurveyCircuit = circuitUrl.searchParams.get('circuit') === surveyCircuit;
+const circuit = byId('circuit');
+circuit.value = isSurveyCircuit ? surveyCircuit : 'WGT03VR-105';
+document.title = 'GMD Patrol ' + circuit.value;
+window.addEventListener('pageshow', () => {
+  circuit.value = isSurveyCircuit ? surveyCircuit : 'WGT03VR-105';
+});
+circuit.addEventListener('change', () => {
+  if (circuit.value === surveyCircuit) circuitUrl.searchParams.set('circuit', surveyCircuit);
+  else circuitUrl.searchParams.delete('circuit');
+  window.location.assign(circuitUrl);
+});
+const photos = isSurveyCircuit ? wgt03vr04 : patrolData.photos;
+const rows = isSurveyCircuit ? [] : patrolData.rows;
 const detailBody = byId('detail-body');
 const dashboard = byId('dashboard');
-const located = photos.filter(photo => photo.position.length);
 const totalMinutes = jobs => jobs.reduce((total, row) => {
   const estimate = String(row[5] ?? '');
   const hours = Number(estimate.match(/(\d+)\s*ชั่[วง]โมง/)?.[1] ?? 0);
@@ -32,7 +46,9 @@ const polePhoto = photos.find(photo => photo.file === 'photos/50.jpg');
 const insulatorPhoto = photos.find(photo => photo.file === 'photos/49.jpg');
 const isRecloserPole = photo => photo === polePhoto || photo === insulatorPhoto;
 const photoPosition = photo => photo === insulatorPhoto ? polePhoto.position : photo.position;
-const photoCaption = photo => photo.filename.replace(/\.jpg$/i, '');
+const photoCaption = photo => isSurveyCircuit
+  ? 'รายการที่ ' + photo.id
+  : photo.filename.replace(/\.jpg$/i, '');
 const coordinates = photo => photoPosition(photo).map(value => value.toFixed(6)).join(', ');
 const mapsLink = photo => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(coordinates(photo));
 const photoGroups = [];
@@ -44,6 +60,19 @@ for (const photo of photos) {
   else photoGroups.push([photo]);
 }
 
+// A single marker opens every survey record at that coordinate.
+const located = (isSurveyCircuit ? photoGroups.map(group => group[0]) : photos)
+  .filter(photo => photo.position.length);
+
+if (isSurveyCircuit) {
+  byId('job-label').textContent = 'รายการสำรวจ';
+  byId('time-label').textContent = 'หมุดบนแผนที่';
+  byId('manual-label').textContent = 'รวมรายการไม่มีพิกัด';
+  byId('manual-total').hidden = true;
+  byId('browse-survey').hidden = false;
+  byId('browse-survey').onclick = () => photoDetail(photoGroups[0][0]);
+}
+
 let visibleGroups = photoGroups;
 let visiblePins = located;
 function setWorkFilter(onlyManual) {
@@ -51,8 +80,10 @@ function setWorkFilter(onlyManual) {
   const minutes = totalMinutes(jobs);
   visibleGroups = onlyManual ? photoGroups.filter(group => group.some(photo => manualJobsByPhoto.has(photo.id))) : photoGroups;
   visiblePins = onlyManual ? located.filter(photo => manualJobsByPhoto.has(photo.id)) : located;
-  byId('job-total').textContent = jobs.length + ' งาน';
-  byId('time-total').textContent = Math.floor(minutes / 60) + ' ชม. ' + (minutes % 60) + ' นาที';
+  byId('job-total').textContent = isSurveyCircuit ? photos.length + ' รายการ' : jobs.length + ' งาน';
+  byId('time-total').textContent = isSurveyCircuit
+    ? located.length + ' หมุด'
+    : Math.floor(minutes / 60) + ' ชม. ' + (minutes % 60) + ' นาที';
   byId('manual-total').textContent = manualJobs.length + ' งาน';
   byId('manual-total').setAttribute('aria-pressed', String(onlyManual));
   activePhoto = null;
@@ -74,6 +105,21 @@ function stepPhoto(offset) {
 function createPhotoCard(photo) {
   const card = node('article');
   card.className = 'survey-photo';
+  if (isSurveyCircuit) {
+    const images = node('div');
+    images.className = 'record-images';
+    for (const [index, file] of photo.images.entries()) {
+      const image = node('img');
+      image.src = file;
+      image.alt = photoCaption(photo) + ' รูปที่ ' + (index + 1);
+      images.append(image);
+    }
+    if (!photo.images.length) images.append(node('p', 'ไม่พบไฟล์ภาพใน ZIP'));
+    card.append(node('h2', photoCaption(photo)), images);
+    if (photo.description) card.append(node('p', photo.description));
+    card.classList.add('survey-record');
+    return card;
+  }
   const image = node('img');
   image.src = photo.file;
   image.alt = photoCaption(photo);
@@ -140,7 +186,7 @@ function photoDetail(photo) {
 function highlightPin() {
   const selected = activePhoto === insulatorPhoto ? polePhoto : activePhoto;
   markers?.eachLayer(marker => {
-    const isSelected = marker.options.title === 'รูปที่ ' + selected?.id;
+    const isSelected = marker.options.title === (selected && markerTitle(selected));
     marker.getElement()?.classList.toggle('pin-selected', isSelected);
     marker.setZIndexOffset(isSelected ? 1000 : 0);
   });
@@ -148,15 +194,18 @@ function highlightPin() {
 const fit = () => {
   if (map) {
     map.stop();
+    if (!visiblePins.length) return;
     map.fitBounds(visiblePins.map(photo => photo.position), {padding:[35,35], maxZoom:17, animate:false});
   }
 };
+const markerTitle = photo => (isSurveyCircuit ? 'รายการที่ ' : 'รูปที่ ') + photo.id;
 function renderPins() {
   if (!markers) return;
   markers.clearLayers();
   for (const photo of visiblePins) {
     L.marker(photo.position, {
-      title: 'รูปที่ ' + photo.id,
+      title: markerTitle(photo),
+      alt: markerTitle(photo),
       icon: L.divIcon({
         className: 'pin',
         html: '<span><b>' + photo.id + '</b></span>',

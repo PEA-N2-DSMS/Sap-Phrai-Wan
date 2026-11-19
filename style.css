@@ -254,3 +254,18 @@ header {color:#30234c;border-left:0;border-bottom:1px solid #cdc9e4}
 #photo-navigation:not([hidden]) {background:#e8ecf7}
 main.map-overview {grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
 main.map-overview aside {display:none}
+
+#circuit {
+  max-width: 100%;
+  padding: .35em .45em;
+  border: 1px solid #cdc9e4;
+  border-radius: 5px;
+  background: #fff;
+  color: #473164;
+  font: inherit;
+  font-size: clamp(.75rem, 2.5vw, 1rem);
+}
+#browse-survey {font:inherit;padding:.12em .55em}
+.record-images {display:flex;gap:6px;min-height:0;min-width:0}
+#detail-body.photo-view .record-images img {flex:1;min-width:0;width:0}
+#detail-body .survey-record > p {margin:0;color:var(--ink)}
