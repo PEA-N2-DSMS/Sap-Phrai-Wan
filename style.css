@@ -53,7 +53,7 @@ aside {min-width:0;overflow:auto;padding:16px 20px;border-left:1px solid var(--l
 .pin {display:grid;justify-items:center;align-items:start}
 .pin>span {display:grid;place-items:center;width:27px;height:27px;margin-top:3px;background:#d52338;color:white;border:2px solid white;border-radius:50% 50% 50% 6%;transform:rotate(-45deg);box-shadow:0 2px 5px #0009}
 .pin b {transform:rotate(45deg);font:700 11px system-ui,sans-serif}
-.pin-selected>span {background:#9b0e25;border-color:var(--yellow);box-shadow:0 0 0 2px #543648,0 2px 5px #0009}
+.pin-selected>span {background:#167b44;border-color:#e3ffe9;box-shadow:0 0 0 2px #125332,0 2px 5px #0009}
 .sr {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
 @media(max-width:700px) {
   body {height:auto;min-height:100dvh}
