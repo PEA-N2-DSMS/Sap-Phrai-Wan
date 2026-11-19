@@ -1,6 +1,7 @@
 const {photos, rows} = patrolData;
 const byId = id => document.getElementById(id);
 const detailBody = byId('detail-body');
+const dashboard = byId('dashboard');
 const located = photos.filter(photo => photo.position.length);
 const totalMinutes = jobs => jobs.reduce((total, row) => {
   const estimate = String(row[5] ?? '');
@@ -54,9 +55,14 @@ function setWorkFilter(onlyManual) {
   byId('time-total').textContent = Math.floor(minutes / 60) + ' ชม. ' + (minutes % 60) + ' นาที';
   byId('manual-total').textContent = manualJobs.length + ' งาน';
   byId('manual-total').setAttribute('aria-pressed', String(onlyManual));
+  activePhoto = null;
+  dashboard.classList.add('map-overview');
+  detailBody.replaceChildren();
+  byId('photo-navigation').hidden = true;
+  map?.stop();
+  map?.invalidateSize({pan:false, animate:false});
   renderPins();
   fit();
-  photoDetail(visibleGroups[0][0], false);
 }
 
 function stepPhoto(offset) {
@@ -90,8 +96,12 @@ function createPhotoCard(photo) {
   return card;
 }
 
-function photoDetail(photo, zoom = true) {
+function photoDetail(photo) {
   activePhoto = photo;
+  if (dashboard.classList.contains('map-overview')) {
+    dashboard.classList.remove('map-overview');
+    map?.invalidateSize({pan:false, animate:false});
+  }
   const index = visibleGroups.findIndex(group => group.includes(photo));
   const group = visibleGroups[index];
   const previous = byId('previous-photo');
@@ -103,7 +113,7 @@ function photoDetail(photo, zoom = true) {
   if (document.activeElement === previous && previous.disabled) next.focus();
   if (document.activeElement === next && next.disabled) previous.focus();
   const position = photoPosition(photo);
-  if (map && position.length && zoom) {
+  if (map && position.length) {
     map.stop();
     const targetZoom = Math.max(map.getZoom(), 17);
     if (reducedMotion.matches) map.setView(position, targetZoom, {animate:false});
@@ -186,6 +196,6 @@ if (window.L) {
   L.control.scale({imperial:false}).addTo(map);
   markers = L.layerGroup().addTo(map);
 } else {
-  byId('map-status').textContent = 'โหลดแผนที่ไม่สำเร็จ ยังเปิดพิกัดแต่ละรูปใน Google Maps ได้จากรายการ';
+  byId('map-status').textContent = 'โหลดแผนที่ไม่สำเร็จ กรุณาตรวจการเชื่อมต่อแล้วโหลดหน้าใหม่';
 }
 setWorkFilter(false);
