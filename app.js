@@ -231,18 +231,11 @@ if (window.L) {
   map = L.map('map',{zoomControl:false});
   L.control.zoom({position:'topright'}).addTo(map);
   const imageryUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-  const imageryOptions = {maxZoom:20,maxNativeZoom:18,attribution:'Imagery © Esri, Maxar, Earthstar Geographics, and the GIS User Community'};
-  const imagery = L.tileLayer(imageryUrl, imageryOptions);
-  const reference = 'https://services.arcgisonline.com/arcgis/rest/services/Reference/';
-  const highways = L.tileLayer(reference + 'World_Transportation/MapServer/tile/{z}/{y}/{x}',
-    {maxZoom:20,maxNativeZoom:19,zIndex:2,attribution:'Roads © Esri, HERE, Garmin'});
-  const places = L.tileLayer(reference + 'World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-    {maxZoom:20,maxNativeZoom:19,zIndex:3,attribution:'Place names © Esri and contributors'});
-  const hybrid = L.layerGroup([L.tileLayer(imageryUrl, imageryOptions), highways, places]);
-  const streets = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    {maxZoom:20,maxNativeZoom:19,attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'}).addTo(map);
-  // Begin with the free street map. Keep satellite imagery as an optional layer.
-  L.control.layers({'แผนที่ถนน (ฟรี)':streets,'ดาวเทียม + ชื่อสถานที่และถนน':hybrid,'ภาพดาวเทียม Esri':imagery},null,{position:'topright'}).addTo(map);
+  L.tileLayer(imageryUrl, {
+    maxZoom: 20,
+    maxNativeZoom: 18,
+    attribution: 'Imagery © Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+  }).addTo(map);
   L.control.scale({imperial:false}).addTo(map);
   markers = L.layerGroup().addTo(map);
 } else {
