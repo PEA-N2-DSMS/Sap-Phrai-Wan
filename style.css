@@ -403,3 +403,8 @@ main.map-overview aside {display:none}
 #editor-error {color:#a31d31}
 .editor-actions {display:flex;justify-content:flex-end;gap:.5rem}
 .editor-actions button[type=submit] {background:#581858;color:#fff}
+
+.work-summary #job-total {font-size:1.3rem}
+@media(max-width:700px) {
+  .work-summary #job-total {font-size:1.085rem}
+}
