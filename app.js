@@ -28,7 +28,10 @@ const manualPhotoByJob = new Map([[11,10],[22,22],[28,28],[37,37],[39,39]]);
 const manualJobsByPhoto = new Map(manualJobs.map(row => [manualPhotoByJob.get(row[0]), row]));
 const bambooSurvey = rows.find(row => row[0] === 1);
 const insulatorSurvey = rows.find(row => row[0] === 2);
-const estimatedTime = row => row?.[5]?.replace('ชั่งโมง', 'ชั่วโมง');
+const workTimeLabel = row => {
+  const time = row?.[5]?.replace('ชั่งโมง', 'ชั่วโมง');
+  return time ? 'ประมาณเวลาทำงาน ' + time : '';
+};
 const vehicleAccess = row => ({
   'เข้าถึง': 'รถเข้าถึงได้',
   'เข้าไม่ถึง': 'รถเข้าถึงไม่ได้ ต้องใช้กำลังคนเข้าปฏิบัติงาน'
@@ -145,13 +148,13 @@ function createPhotoCard(photo) {
   const manualJob = manualJobsByPhoto.get(photo.id);
   let description = [filenameDescription, photo.description].filter(Boolean).join(' · ');
   if (manualJob) {
-    info.append(node('p', 'งานที่ ' + manualJob[0] + ' · ' + [manualJob[2],manualJob[6],estimatedTime(manualJob)].filter(Boolean).join(' · ')));
-    info.append(node('p', vehicleAccess(manualJob)));
+    info.append(node('p', 'งานที่ ' + manualJob[0] + ' · ' + [manualJob[2],manualJob[6]].filter(Boolean).join(' · ')));
+    info.append(node('p', [workTimeLabel(manualJob), vehicleAccess(manualJob)].filter(Boolean).join(' · ')));
   } else if (isRecloserPole(photo)) {
     const isInsert = photo === insulatorPhoto;
     const survey = isInsert ? insulatorSurvey : bambooSurvey;
     description = isInsert ? 'ลูกถ้วยก้านตรงรั่ว (Leak) · เฟส C' : 'กอไผ่ 1 กอ · ต้นแรกหลังรีโคลสเซอร์';
-    info.append(node('p', [estimatedTime(survey), vehicleAccess(survey)].filter(Boolean).join(' · ')));
+    info.append(node('p', [workTimeLabel(survey), vehicleAccess(survey)].filter(Boolean).join(' · ')));
   }
   card.append(photoHeading(photo, description), image);
   if (info.childElementCount) card.append(info);
