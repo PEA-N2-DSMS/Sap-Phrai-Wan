@@ -244,7 +244,7 @@ header h1 {font-weight:750}
 body,aside {background:var(--gmd-gradient)}
 header {
   display:grid;
-  grid-template-columns:minmax(0,1fr) auto auto;
+  grid-template-columns:auto auto minmax(0,1fr);
   background:linear-gradient(105deg,#461446 0%,#8b287f 53%,#9c3490 65%,#d8a344 91%,#f9ce8a 100%);
   color:#30234c;
   border-left:0;
@@ -256,6 +256,7 @@ header {
   gap:inherit;
   min-width:0;
 }
+header #fit {justify-self:end}
 header .site-title {
   background:#fffffff0;
   border-radius:5px;

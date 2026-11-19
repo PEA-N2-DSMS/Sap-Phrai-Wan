@@ -4,7 +4,7 @@ const circuitUrl = new URL(window.location.href);
 const isSurveyCircuit = circuitUrl.searchParams.get('circuit') === surveyCircuit;
 const circuit = byId('circuit');
 circuit.value = isSurveyCircuit ? surveyCircuit : 'WGT03VR-105';
-document.title = 'PEA GMD ' + circuit.value;
+document.title = 'PEA ' + circuit.value;
 window.addEventListener('pageshow', () => {
   circuit.value = isSurveyCircuit ? surveyCircuit : 'WGT03VR-105';
 });
