@@ -312,7 +312,6 @@ main.map-overview aside {display:none}
   .circuit-picker::after {display:none}
   #circuit {appearance:auto;padding-inline-end:.65rem}
 }
-#browse-survey {font:inherit;padding:.12em .55em}
 .record-images {display:flex;gap:6px;min-height:0;min-width:0}
 #detail-body.photo-view .record-images img {flex:1;min-width:0;width:0}
 #detail-body .survey-photo .photo-heading {
@@ -363,12 +362,24 @@ main.map-overview aside {display:none}
   background:#58185808;
 }
 
+#detail-body .survey-photo-info {
+  display:flex;
+  align-items:center;
+  gap:.4rem;
+}
+#detail-body .survey-photo-info .work-details {flex:1;min-width:0}
 #detail-body .edit-photo {
-  display:block;
-  margin:.3rem 0 0 auto;
+  flex:none;
+  margin:0;
+  border-color:#581858;
+  background:#581858;
+  color:#fff;
+  font-weight:700;
+  white-space:nowrap;
   padding:.2em .65em;
   font-size:.85rem;
 }
+#detail-body .edit-photo:hover {background:#400848}
 #photo-editor {
   width:min(25rem,calc(100% - 1.5rem));
   max-height:calc(100dvh - 2rem);

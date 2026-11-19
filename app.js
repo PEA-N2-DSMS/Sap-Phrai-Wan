@@ -14,7 +14,7 @@ circuit.addEventListener('change', () => {
   window.location.assign(circuitUrl);
 });
 const photos = isSurveyCircuit ? wgt03vr04 : patrolData.photos;
-const rows = isSurveyCircuit ? [] : patrolData.rows.map(row => [...row]);
+const rows = isSurveyCircuit ? photos.map(photo => [photo.id]) : patrolData.rows.map(row => [...row]);
 const editStorageKey = 'pea-survey-edits:' + circuit.value;
 let edits = {};
 try {
@@ -50,7 +50,7 @@ const jobNumbersByPhoto = [
   41, 42, 43, 44, 44, 44, 44, 45
 ];
 const jobsByPhoto = new Map(photos.map(photo => [
-  photo.id, isSurveyCircuit ? applyJobEdit([photo.id]) : rows.find(row => row[0] === jobNumbersByPhoto[photo.id - 1])
+  photo.id, rows.find(row => row[0] === (isSurveyCircuit ? photo.id : jobNumbersByPhoto[photo.id - 1]))
 ]));
 const isManualPhoto = photo => jobsByPhoto.get(photo.id)?.[3] === 'เข้าไม่ถึง';
 const photoCountByJob = new Map();
@@ -109,15 +109,6 @@ for (const photo of photos) {
 const located = (isSurveyCircuit ? photoGroups.map(group => group[0]) : photos)
   .filter(photo => photo.position.length);
 
-if (isSurveyCircuit) {
-  byId('job-label').textContent = 'รายการสำรวจ';
-  byId('time-label').textContent = 'หมุดบนแผนที่';
-  byId('manual-label').textContent = 'รวมรายการไม่มีพิกัด';
-  byId('manual-total').hidden = true;
-  byId('browse-survey').hidden = false;
-  byId('browse-survey').onclick = () => photoDetail(photoGroups[0][0]);
-}
-
 let visibleGroups = photoGroups;
 let visiblePins = located;
 function setWorkFilter(onlyManual) {
@@ -125,11 +116,15 @@ function setWorkFilter(onlyManual) {
   const jobs = onlyManual ? manualJobs : rows;
   const minutes = totalMinutes(jobs);
   visibleGroups = onlyManual ? photoGroups.filter(group => group.some(isManualPhoto)) : photoGroups;
-  visiblePins = onlyManual ? located.filter(isManualPhoto) : located;
-  byId('job-total').textContent = isSurveyCircuit ? photos.length + ' รายการ' : jobs.length + ' งาน';
-  byId('time-total').textContent = isSurveyCircuit
-    ? located.length + ' หมุด'
-    : Math.floor(minutes / 60) + ' ชม. ' + (minutes % 60) + ' นาที';
+  visiblePins = onlyManual
+    ? isSurveyCircuit
+      ? visibleGroups.map(group => group[0]).filter(photo => photo.position.length)
+      : located.filter(isManualPhoto)
+    : located;
+  byId('job-total').textContent = jobs.length + ' งาน';
+  byId('time-total').textContent = jobs.some(job => job[5])
+    ? Math.floor(minutes / 60) + ' ชม. ' + (minutes % 60) + ' นาที'
+    : '—';
   byId('manual-total').textContent = manualJobs.length + ' งาน';
   byId('manual-total').setAttribute('aria-pressed', String(onlyManual));
   activePhoto = null;
@@ -222,7 +217,7 @@ function appendWorkDetails(info, row) {
   const text = [workTimeLabel(row), vehicleAccess(row)].filter(Boolean).join(' · ');
   const details = node('p', text);
   details.className = 'work-details';
-  info.prepend(details);
+  info.append(details);
 }
 
 function createPhotoCard(photo) {
@@ -235,6 +230,7 @@ function createPhotoCard(photo) {
   edit.className = 'edit-photo';
   edit.setAttribute('aria-label', 'แก้ไข ' + photoCaption(photo));
   edit.onclick = () => openPhotoEditor(photo);
+  appendWorkDetails(info, jobsByPhoto.get(photo.id));
   info.append(edit);
   if (isSurveyCircuit) {
     const images = node('div');
@@ -246,7 +242,6 @@ function createPhotoCard(photo) {
       images.append(image);
     }
     if (!photo.images.length) images.append(node('p', 'ไม่พบไฟล์ภาพใน ZIP'));
-    appendWorkDetails(info, jobsByPhoto.get(photo.id));
     card.append(photoHeading(photo, photoDescription(photo)), images, info);
     card.classList.add('survey-record');
     return card;
@@ -254,11 +249,6 @@ function createPhotoCard(photo) {
   const image = node('img');
   image.src = photo.file;
   image.alt = photoCaption(photo);
-  const job = jobsByPhoto.get(photo.id);
-  if (isManualPhoto(photo)) {
-    info.append(node('p', 'งานที่ ' + job[0] + ' · ' + [job[2], job[6]].filter(Boolean).join(' · ')));
-  }
-  appendWorkDetails(info, jobsByPhoto.get(photo.id));
   card.append(photoHeading(photo, photoDescription(photo)), image, info);
   return card;
 }
