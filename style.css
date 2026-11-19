@@ -410,8 +410,6 @@ main.map-overview aside {display:none}
   color:var(--purple-dark);
   font-size:1.3rem;
   font-weight:750;
-  text-decoration:underline;
-  text-underline-offset:.14em;
 }
 @media(max-width:580px) {
   .header-brand {display:contents}
