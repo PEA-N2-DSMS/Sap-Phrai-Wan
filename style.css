@@ -380,7 +380,7 @@ main.map-overview aside {display:none}
   font-size:.85rem;
 }
 #detail-body .edit-photo:hover {background:#400848}
-:is(#photo-editor,#welcome-tip) {
+#photo-editor {
   width:min(25rem,calc(100% - 1.5rem));
   max-height:calc(100dvh - 2rem);
   padding:1rem;
@@ -388,7 +388,7 @@ main.map-overview aside {display:none}
   border-radius:12px;
   color:var(--ink);
 }
-:is(#photo-editor,#welcome-tip)::backdrop {background:#25112e80}
+#photo-editor::backdrop {background:#25112e80}
 #edit-form,#edit-form label {display:grid;gap:.35rem}
 #edit-form {gap:.65rem}
 #edit-form :is(input,textarea,select) {
@@ -432,20 +432,20 @@ main.map-overview aside {display:none}
   :is(header button,header select,.work-summary button,#photo-navigation button,.edit-photo,.editor-actions button,.survey-location a):active:not(:disabled) {
     transform:scale(.97);
   }
-  :is(#photo-editor,#welcome-tip) {
+  #photo-editor {
     opacity:0;
     transform:translateY(4px);
     transition:opacity 160ms ease-out,transform 160ms ease-out,display 160ms allow-discrete,overlay 160ms allow-discrete;
   }
-  :is(#photo-editor,#welcome-tip)[open] {opacity:1;transform:translateY(0)}
-  :is(#photo-editor,#welcome-tip)::backdrop {
+  #photo-editor[open] {opacity:1;transform:translateY(0)}
+  #photo-editor::backdrop {
     opacity:0;
     transition:opacity 160ms ease-out,display 160ms allow-discrete,overlay 160ms allow-discrete;
   }
-  :is(#photo-editor,#welcome-tip)[open]::backdrop {opacity:1}
+  #photo-editor[open]::backdrop {opacity:1}
   @starting-style {
-    :is(#photo-editor,#welcome-tip)[open] {opacity:0;transform:translateY(4px)}
-    :is(#photo-editor,#welcome-tip)[open]::backdrop {opacity:0}
+    #photo-editor[open] {opacity:0;transform:translateY(4px)}
+    #photo-editor[open]::backdrop {opacity:0}
   }
 }
 @keyframes survey-enter {
@@ -453,5 +453,31 @@ main.map-overview aside {display:none}
   to {opacity:1;transform:translateY(0)}
 }
 
-#welcome-tip h2 {color:var(--purple-dark);font-size:1.2rem}
-#welcome-tip p {margin:.65rem 0 1rem;line-height:1.5}
+#dashboard {position:relative}
+#map-mascot {
+  display:none;
+  position:absolute;
+  inset-inline-end:.75rem;
+  bottom:1.7rem;
+  z-index:450;
+  align-items:center;
+  gap:.1rem;
+  pointer-events:none;
+}
+.map-overview #map-mascot:not([hidden]) {display:flex}
+#map-mascot p {
+  max-width:11rem;
+  padding:.45em .65em;
+  border:1px solid #d8a344;
+  border-radius:10px;
+  background:#fff8ea;
+  color:#461446;
+  font-size:clamp(.8rem,2vw,1rem);
+  font-weight:700;
+  box-shadow:0 2px 6px #25112e40;
+}
+#map-mascot img {
+  width:clamp(3.5rem,9vw,5rem);
+  height:auto;
+  filter:drop-shadow(0 2px 3px #25112e60);
+}

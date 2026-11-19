@@ -123,6 +123,7 @@ const located = (isSurveyCircuit ? photoGroups.map(group => group[0]) : photos)
 let showManualPins = false;
 function showOverview(highlightManual) {
   showManualPins = highlightManual;
+  byId('map-mascot').hidden = highlightManual;
   const manualJobs = rows.filter(row => row[3] === 'เข้าไม่ถึง');
   const minutes = totalMinutes(rows);
   byId('job-total').textContent = rows.length + ' งาน';
@@ -388,22 +389,3 @@ if (window.L) {
   byId('map-status').textContent = 'โหลดแผนที่ไม่สำเร็จ กรุณาตรวจการเชื่อมต่อแล้วโหลดหน้าใหม่';
 }
 showOverview(false);
-
-const welcomeTip = byId('welcome-tip');
-const welcomeKey = 'pea-survey-welcome-seen';
-let welcomeSeen = false;
-try {
-  welcomeSeen = sessionStorage.getItem(welcomeKey) === '1';
-} catch {
-  // The tip is still available when session storage is blocked.
-}
-if (!welcomeSeen) {
-  welcomeTip.addEventListener('close', () => {
-    try {
-      sessionStorage.setItem(welcomeKey, '1');
-    } catch {
-      // The tip can be dismissed without browser storage.
-    }
-  }, {once: true});
-  welcomeTip.showModal();
-}

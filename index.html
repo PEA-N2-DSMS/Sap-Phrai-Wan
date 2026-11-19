@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PEA WGT03VR-105</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="style.css?v=welcome-tip">
+<link rel="stylesheet" href="style.css?v=map-mascot">
 <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script defer src="data.js?v=survey-copy"></script>
 <script defer src="wgt03vr-04.js?v=100-records"></script>
-<script defer src="app.js?v=welcome-tip"></script>
+<script defer src="app.js?v=map-mascot"></script>
 </head>
 <body>
 <header>
@@ -33,6 +33,10 @@
 </dl>
 <main id="dashboard" class="map-overview">
  <section id="map" aria-label="แผนที่ภาพดาวเทียม"><p id="map-status" role="status">กำลังโหลดแผนที่ภาพดาวเทียม</p></section>
+ <div id="map-mascot">
+  <p>กดที่หมุดเพื่อดูรายละเอียดงาน</p>
+  <img src="pea-mascot.png" alt="" width="80" height="81">
+ </div>
  <aside aria-label="ภาพถ่ายและรายละเอียดการสำรวจ">
   <section id="detail" aria-label="รายละเอียดภาพสำรวจ">
    <nav id="photo-navigation" aria-label="เปลี่ยนรูปสำรวจ" hidden>
@@ -44,13 +48,6 @@
   </section>
  </aside>
 </main>
-<dialog id="welcome-tip" aria-labelledby="welcome-title" aria-describedby="welcome-message">
- <h2 id="welcome-title">แนะนำการใช้งาน</h2>
- <p id="welcome-message">กดที่หมุดบนแผนที่เพื่อดูรายละเอียดงาน</p>
- <form method="dialog" class="editor-actions">
-  <button type="submit" autofocus>เข้าใจแล้ว</button>
- </form>
-</dialog>
 <dialog id="photo-editor" aria-labelledby="editor-heading">
  <form id="edit-form">
   <h2 id="editor-heading"></h2>
