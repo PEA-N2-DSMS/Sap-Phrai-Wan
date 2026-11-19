@@ -87,7 +87,7 @@ aside {position:relative;display:grid;grid-template-rows:minmax(0,1fr);overflow:
 .survey-gallery.multiple {grid-template-columns:repeat(2,minmax(0,1fr))}
 .survey-photo {display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:6px;min-width:0;min-height:0;padding:8px;border:1px solid var(--line);border-radius:9px;background:white}
 #detail-body .survey-photo h2 {font-size:clamp(1.05rem,1.35vw,1.55rem);line-height:1.35;overflow-wrap:anywhere}
-.survey-photo-info {font-size:.82rem;line-height:1.35}
+
 #detail-body .survey-photo-info p {margin:0;color:var(--ink);font-size:inherit}
 #detail-body .survey-photo-info p+p {margin-top:4px}
 #detail-body .survey-photo-info small {font-size:.75rem;margin-top:4px}
@@ -96,7 +96,7 @@ aside {position:relative;display:grid;grid-template-rows:minmax(0,1fr);overflow:
 @media(max-width:700px) {
   .survey-photo {padding:5px;gap:4px}
   .survey-gallery {gap:5px}
-  .survey-photo-info,.survey-location {font-size:.72rem}
+  .survey-location {font-size:.72rem}
 }
 
 :root {
@@ -177,7 +177,6 @@ header h1 {font-size:clamp(1.12rem,1.55vw,1.65rem);line-height:1.2;overflow-wrap
 #fit,#photo-navigation button,#photo-position {font-size:.92rem}
 .work-summary dt {font-size:.82rem}
 .work-summary dd {font-size:1.05rem}
-.survey-photo-info {font-size:clamp(.9rem,1.13vw,1.23rem);line-height:1.4}
 #detail-body .survey-photo h2 {font-size:clamp(.98rem,1.23vw,1.35rem)}
 #detail-body .survey-photo-info small,.survey-location {font-size:.83rem}
 .energy-footer {height:45px}
@@ -189,7 +188,6 @@ header h1 {font-size:clamp(1.12rem,1.55vw,1.65rem);line-height:1.2;overflow-wrap
   .work-summary dt {font-size:.68rem}
   .work-summary dd {font-size:.86rem}
   #detail-body .survey-photo h2 {font-size:.89rem}
-  .survey-photo-info {font-size:.81rem}
   #detail-body .survey-photo-info small,.survey-location {font-size:.74rem}
   .energy-footer {height:35px}
 }
@@ -311,4 +309,15 @@ main.map-overview aside {display:none}
 #browse-survey {font:inherit;padding:.12em .55em}
 .record-images {display:flex;gap:6px;min-height:0;min-width:0}
 #detail-body.photo-view .record-images img {flex:1;min-width:0;width:0}
-#detail-body .survey-record > p {margin:0;color:var(--ink)}
+#detail-body :is(p.survey-photo-info,.survey-record > p) {
+  margin:0;
+  color:#25162c;
+  font-size:clamp(1.0625rem,1.45vw,1.3rem);
+  font-weight:700;
+  line-height:1.45;
+}
+#detail-body .survey-photo-info > p {
+  color:#382940;
+  font-size:clamp(1rem,1.2vw,1.15rem);
+  line-height:1.45;
+}
