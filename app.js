@@ -6,6 +6,17 @@ const search = byId('search');
 const browse = byId('browse');
 const detailBody = byId('detail-body');
 const located = photos.filter(photo => photo.position.length);
+const workMinutes = rows.reduce((total, row) => {
+  const estimate = String(row[5] ?? '');
+  const hours = Number(estimate.match(/(\d+)\s*ชั่[วง]โมง/)?.[1] ?? 0);
+  const minutes = Number(estimate.match(/(\d+)\s*นาที/)?.[1] ?? 0);
+  return total + hours * 60 + minutes;
+}, 0);
+const manualJobs = rows.filter(row => row[3] === 'เข้าไม่ถึง');
+byId('job-total').textContent = rows.length + ' งาน';
+byId('time-total').textContent = Math.floor(workMinutes / 60) + ' ชม. ' + (workMinutes % 60) + ' นาที';
+byId('manual-total').textContent = manualJobs.length + ' งาน';
+byId('manual-total').parentElement.title = 'รถเข้าไม่ถึง · งานที่ ' + manualJobs.map(row => row[0]).join(', ');
 const bambooSurvey = rows.find(row => row[0] === 1);
 const insulatorSurvey = rows.find(row => row[0] === 2);
 const estimatedTime = row => row?.[5]?.replace('ชั่งโมง', 'ชั่วโมง');
