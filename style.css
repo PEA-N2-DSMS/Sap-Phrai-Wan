@@ -213,3 +213,13 @@ header h1 {font-size:clamp(1.12rem,1.55vw,1.65rem);line-height:1.2;overflow-wrap
 #manual-jobs-list {list-style:none;margin:12px 0 0;padding:0;display:grid;gap:7px}
 #manual-jobs-list li {display:grid;gap:4px;background:var(--lavender);padding:9px 12px;border-radius:8px}
 #manual-jobs-list span {color:var(--muted)}
+
+header {
+  background:linear-gradient(118deg,#32133e,#51215a 52%,#46194e);
+  color:#fff;
+  border-bottom:2px solid #d7a54a;
+}
+header h1 {font-weight:800;letter-spacing:.015em}
+.site-title span {color:#ffcf64;white-space:nowrap}
+.pea-logo {border-radius:50%;border:1px solid #e8cb89;box-shadow:0 0 0 2px #fff2}
+#fit {background:#ffe2a3;color:#401746}
