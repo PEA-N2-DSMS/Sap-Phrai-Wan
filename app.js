@@ -37,6 +37,8 @@ const vehicleAccess = row => ({
   'เข้าไม่ถึง': 'รถเข้าถึงไม่ได้ ต้องใช้กำลังคนเข้าปฏิบัติงาน'
 })[row?.[3]];
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const overviewZoom = 13;
+const workDetailZoom = 16;
 let map;
 let markers;
 let activePhoto = null;
@@ -103,7 +105,7 @@ function setWorkFilter(onlyManual) {
   map?.stop();
   map?.invalidateSize({pan:false, animate:false});
   renderPins();
-  fit();
+  fit(onlyManual);
 }
 
 function stepPhoto(offset) {
@@ -188,7 +190,7 @@ function photoDetail(photo) {
   const position = photoPosition(photo);
   if (map && position.length) {
     map.stop();
-    const targetZoom = Math.max(map.getZoom(), 17);
+    const targetZoom = workDetailZoom;
     if (reducedMotion.matches) map.setView(position, targetZoom, {animate:false});
     else if (map.getZoom() === targetZoom) map.panTo(position, {animate:true,duration:.45});
     else map.flyTo(position, targetZoom, {duration:.65});
@@ -226,11 +228,16 @@ function highlightPin() {
     marker.setZIndexOffset(isSelected ? 1000 : 0);
   });
 }
-const fit = () => {
+const fit = onlyManual => {
   if (map) {
     map.stop();
     if (!visiblePins.length) return;
-    map.fitBounds(visiblePins.map(photo => photo.position), {padding:[35,35], maxZoom:17, animate:false});
+    const bounds = L.latLngBounds(visiblePins.map(photo => photo.position));
+    if (onlyManual) {
+      map.fitBounds(bounds, {padding:[35,35], maxZoom:17, animate:false});
+    } else {
+      map.setView(bounds.getCenter(), overviewZoom, {animate:false});
+    }
   }
 };
 const markerTitle = photo => (isSurveyCircuit ? 'รายการที่ ' : 'รูปที่ ') + photo.id;
