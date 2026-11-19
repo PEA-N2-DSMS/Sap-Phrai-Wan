@@ -24,13 +24,29 @@ const totalMinutes = jobs => jobs.reduce((total, row) => {
   return total + hours * 60 + minutes;
 }, 0);
 const manualJobs = rows.filter(row => row[3] === 'เข้าไม่ถึง');
-const manualPhotoByJob = new Map([[11,10],[22,22],[28,28],[37,37],[39,39]]);
-const manualJobsByPhoto = new Map(manualJobs.map(row => [manualPhotoByJob.get(row[0]), row]));
-const bambooSurvey = rows.find(row => row[0] === 1);
-const insulatorSurvey = rows.find(row => row[0] === 2);
+// Excel job numbers in photo-ID order. A job recorded in several photos contributes once to the total.
+const jobNumbersByPhoto = [
+  1, 2, 3, 4, 4, 5, 7, 9, 10, 11,
+  12, 13, 13, 14, 15, 16, 17, 18, 19, 20,
+  21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+  31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+  41, 42, 43, 44, 44, 44, 44, 45
+];
+const jobsByPhoto = new Map(photos.map(photo => [
+  photo.id, rows.find(row => row[0] === jobNumbersByPhoto[photo.id - 1])
+]));
+const manualJobsByPhoto = new Map([...jobsByPhoto].filter(([, job]) => job?.[3] === 'เข้าไม่ถึง'));
+const photoCountByJob = new Map();
+for (const job of jobsByPhoto.values()) {
+  if (job) photoCountByJob.set(job[0], (photoCountByJob.get(job[0]) ?? 0) + 1);
+}
 const workTimeLabel = row => {
   const time = row?.[5]?.replace('ชั่งโมง', 'ชั่วโมง');
-  return time ? 'ประมาณเวลาทำงาน ' + time : '';
+  if (!time) return 'ไม่มีข้อมูลประมาณเวลาทำงาน';
+  const photoCount = photoCountByJob.get(row[0]);
+  return photoCount > 1
+    ? 'ประมาณเวลาทำงานรวม ' + time + ' (งานเดียวกัน ' + photoCount + ' รูป)'
+    : 'ประมาณเวลาทำงาน ' + time;
 };
 const vehicleAccess = row => ({
   'เข้าถึง': 'รถเข้าถึงได้',
@@ -123,7 +139,6 @@ function photoHeading(photo, description) {
 
 function appendWorkDetails(info, row) {
   const text = [workTimeLabel(row), vehicleAccess(row)].filter(Boolean).join(' · ');
-  if (!text) return;
   const details = node('p', text);
   details.className = 'work-details';
   info.append(details);
@@ -132,6 +147,8 @@ function appendWorkDetails(info, row) {
 function createPhotoCard(photo) {
   const card = node('article');
   card.className = 'survey-photo';
+  const info = node('div');
+  info.className = 'survey-photo-info';
   if (isSurveyCircuit) {
     const images = node('div');
     images.className = 'record-images';
@@ -142,15 +159,14 @@ function createPhotoCard(photo) {
       images.append(image);
     }
     if (!photo.images.length) images.append(node('p', 'ไม่พบไฟล์ภาพใน ZIP'));
-    card.append(photoHeading(photo, photo.description), images);
+    appendWorkDetails(info, jobsByPhoto.get(photo.id));
+    card.append(photoHeading(photo, photo.description), images, info);
     card.classList.add('survey-record');
     return card;
   }
   const image = node('img');
   image.src = photo.file;
   image.alt = photoCaption(photo);
-  const info = node('div');
-  info.className = 'survey-photo-info';
   const filenameDescription = photo.filename
     .replace(/\.jpg$/i, '')
     .replace(/^จุดที่\s+\d+(?:\.\d+)*\s*/, '')
@@ -159,15 +175,12 @@ function createPhotoCard(photo) {
   let description = [filenameDescription, photo.description].filter(Boolean).join(' · ');
   if (manualJob) {
     info.append(node('p', 'งานที่ ' + manualJob[0] + ' · ' + [manualJob[2],manualJob[6]].filter(Boolean).join(' · ')));
-    appendWorkDetails(info, manualJob);
   } else if (isRecloserPole(photo)) {
     const isInsert = photo === insulatorPhoto;
-    const survey = isInsert ? insulatorSurvey : bambooSurvey;
     description = isInsert ? 'ลูกถ้วยก้านตรงรั่ว (Leak) · เฟส C' : 'กอไผ่ 1 กอ · ต้นแรกหลังรีโคลสเซอร์';
-    appendWorkDetails(info, survey);
   }
-  card.append(photoHeading(photo, description), image);
-  if (info.childElementCount) card.append(info);
+  appendWorkDetails(info, jobsByPhoto.get(photo.id));
+  card.append(photoHeading(photo, description), image, info);
   return card;
 }
 
