@@ -65,19 +65,10 @@ aside {position:relative;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:
 #detail-body {flex:1;min-height:0;overflow:auto}
 #detail-body.photo-view {display:grid;grid-template-rows:auto minmax(0,1fr) auto;align-items:start;gap:7px;overflow:hidden;padding:10px}
 #detail-body.photo-view img {width:100%;height:100%;min-height:0;margin:0;object-fit:contain;background:var(--lavender)}
-.photo-actions {display:flex;align-items:center;flex-wrap:wrap;gap:5px 8px;font-size:.82rem}
-.photo-actions button {margin:0!important;padding:5px 8px}
-.photo-actions span {color:var(--muted)}
 #browse {margin:0;background:#fff}
 #browse summary {padding:7px 12px}
 .browse-content {position:absolute;z-index:2;bottom:46px;left:12px;right:12px;max-height:calc(100% - 50px);overflow:auto;padding:12px;border:1px solid var(--line);border-radius:12px;background:white;box-shadow:0 6px 24px #40084830}
 #results {max-height:min(30dvh,260px)}
-#photo-info {width:min(520px,92vw);max-height:85dvh;padding:16px;border:1px solid var(--line);border-radius:14px;color:var(--ink)}
-#photo-info::backdrop {background:#28123088}
-#photo-info form {display:flex;justify-content:flex-end}
-#photo-info-body h2 {font-size:1.1rem}
-#photo-info-body h3,#photo-info-body p,#photo-info-body a {margin-top:8px}
-#photo-info-body a {display:inline-block;color:var(--purple)}
 @media(max-width:700px) {
   header {padding:6px 9px;gap:8px}
   header p {font-size:.75rem}
@@ -105,4 +96,21 @@ aside {position:relative;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:
   .work-summary div {display:grid;justify-items:center;align-content:center;gap:1px;text-align:center;padding:4px 2px}
   .work-summary dt {font-size:.64rem;line-height:1.16}
   .work-summary dd {font-size:.8rem}
+}
+
+#detail-body.photo-view {grid-template-rows:minmax(0,1fr) auto;align-items:stretch}
+.survey-gallery {display:grid;grid-template-columns:minmax(0,1fr);gap:8px;min-height:0}
+.survey-gallery.multiple {grid-template-columns:repeat(2,minmax(0,1fr))}
+.survey-photo {display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:6px;min-width:0;min-height:0;padding:8px;border:1px solid var(--line);border-radius:9px;background:white}
+.survey-photo h2 {font-size:clamp(.78rem,1.25vw,1rem)!important;line-height:1.25;overflow-wrap:anywhere}
+.survey-photo-info {font-size:.82rem;line-height:1.35}
+#detail-body .survey-photo-info p {margin:0;color:var(--ink);font-size:inherit}
+#detail-body .survey-photo-info p+p {margin-top:4px}
+#detail-body .survey-photo-info small {font-size:.75rem;margin-top:4px}
+.survey-location {display:flex;flex-wrap:wrap;align-items:center;gap:2px 10px;color:var(--muted);font-size:.78rem}
+#detail-body .survey-location a {margin:0}
+@media(max-width:700px) {
+  .survey-photo {padding:5px;gap:4px}
+  .survey-gallery {gap:5px}
+  .survey-photo-info,.survey-location {font-size:.72rem}
 }
