@@ -306,11 +306,25 @@ function photoDetail(photo) {
     location.append(node('span', 'รูปนี้ไม่มีพิกัดกำกับ'));
   }
   if (position.length) {
-    const link = node('a', 'เปิด Google Street View');
-    link.href = streetViewLink(photo);
-    link.target = '_blank';
-    link.rel = 'noopener';
-    location.append(link);
+    const actions = node('div');
+    actions.className = 'location-actions';
+    const directions = new URLSearchParams({
+      api: '1',
+      destination: position.join(','),
+      travelmode: 'driving',
+      dir_action: 'navigate'
+    });
+    for (const [label, url] of [
+      ['เปิด Google Street View', streetViewLink(photo)],
+      ['นำทาง', 'https://www.google.com/maps/dir/?' + directions]
+    ]) {
+      const link = node('a', label);
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      actions.append(link);
+    }
+    location.append(actions);
   }
   detailBody.classList.add('photo-view');
   detailBody.replaceChildren(gallery, location);
